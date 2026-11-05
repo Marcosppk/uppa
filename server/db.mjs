@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
   nome TEXT NOT NULL,
   login TEXT NOT NULL UNIQUE,
   senha_hash TEXT NOT NULL,
-  papel TEXT NOT NULL DEFAULT 'tesoureiro'          -- admin | tesoureiro
+  papel TEXT NOT NULL DEFAULT 'tesoureiro'          -- admin | presidente | diretoria | tesoureiro
 );
 CREATE TABLE IF NOT EXISTS sessoes (
   token TEXT PRIMARY KEY,

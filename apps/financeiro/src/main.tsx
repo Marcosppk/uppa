@@ -3,7 +3,7 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import '@shared/estilo.css';
 import './app.css';
 import { ToastProvider, useRota, Icone, Logo, Carregando, ir } from '@shared/ui';
-import { api, type Usuario } from './api';
+import { api, nomePapel, podeTudo, type Usuario } from './api';
 import { Entrar } from './Entrar';
 // As telas carregam só quando abertas: a tela de entrada fica bem mais leve.
 const Painel = lazy(() => import('./Painel').then((m) => ({ default: m.Painel })));
@@ -111,6 +111,7 @@ function App() {
         </nav>
         <div className="quem">
           <span>{usuario.nome}</span>
+          <span className="muted small">{nomePapel(usuario.papel)}</span>
           <span className="muted small">Versão {VERSAO}</span>
           {document.documentElement.dataset.campanha && <span className="selo-campanha">
               <Laco cor={campanhaDoMes().cor} tamanho={18} /> {campanhaDoMes().nome}
@@ -127,7 +128,7 @@ function App() {
             tourVisto={!!usuario.tour_visto}
             versaoVista={usuario.versao_vista}
             refazerTour={refazerTour}
-            passos={passosFinanceiro(usuario.nome, usuario.papel === 'admin')}
+            passos={passosFinanceiro(usuario.nome, podeTudo(usuario))}
             marcar={(v) => api.post('/admin/visto', v)}
             aoFim={() => {
               setRecepcaoFeita(true);

@@ -1,5 +1,5 @@
 // Link que abre direto a ficha de inscrição do app UPPA Associados.
-// Qualquer sócio ou usuário do Financeiro gera o seu; as inscrições feitas por ele aguardam autorização de um administrador.
+// Qualquer sócio ou usuário do Financeiro gera o seu; as inscrições feitas por ele aguardam autorização da diretoria.
 import { useState } from 'react';
 import { Icone, useToast, Carregando } from './ui';
 
@@ -72,7 +72,7 @@ export function LinkCadastro({ carregar }: { carregar: () => Promise<Convite> })
       </div>
       <p className="muted small" style={{ margin: 0 }}>
         Quem abrir o link vai direto para a ficha de inscrição. {convite.usos > 0 ? `${convite.usos} inscrição(ões) já feita(s) pelo seu link. ` : ''}Cada cadastro só entra na UPPA depois da
-        autorização de um administrador.
+        autorização da diretoria.
       </p>
     </div>
   );

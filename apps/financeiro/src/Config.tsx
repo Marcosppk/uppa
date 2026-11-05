@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDados, Estado, Campo, useAcao, Icone, useToast } from '@shared/ui';
-import { api, type Usuario } from './api';
+import { api, nomePapel, PAPEIS, podeTudo, type Usuario } from './api';
 import { PainelAcessibilidade } from '@shared/acessibilidade';
 import { SobreVersao } from '@shared/Novidades';
 
@@ -15,7 +15,7 @@ interface Resumo {
 }
 
 export function Config({ usuario, aoSair, aoMudarCampanha }: { usuario: Usuario; aoSair: () => void; aoMudarCampanha?: () => void }) {
-  const admin = usuario.papel === 'admin';
+  const admin = podeTudo(usuario);
   return (
     <>
       <div className="topo">
@@ -559,7 +559,27 @@ function Usuarios({ admin, eu }: { admin: boolean; eu: Usuario }) {
             <div className="sp">
               <b>{u.nome}</b> <span className="muted small">({u.login})</span>
             </div>
-            <span className="tag">{u.papel === 'admin' ? 'Administrador' : 'Tesoureiro'}</span>
+            {admin && u.id !== eu.id ? (
+              <select
+                className="input sm"
+                style={{ width: 'auto' }}
+                aria-label={`Perfil de ${u.nome}`}
+                value={u.papel}
+                disabled={ocupado}
+                onChange={(e) => {
+                  const papel = e.target.value;
+                  rodar(() => api.put(`/admin/usuarios/${u.id}`, { papel }), `${u.nome} agora é ${nomePapel(papel)}.`).then(recarregar);
+                }}
+              >
+                {PAPEIS.map((x) => (
+                  <option key={x.valor} value={x.valor}>
+                    {x.nome}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span className="tag">{nomePapel(u.papel)}</span>
+            )}
             {admin && u.id !== eu.id && (
               <button className="btn ghost sm" disabled={ocupado} onClick={() => confirm(`Remover o acesso de ${u.nome}?`) && rodar(() => api.del(`/admin/usuarios/${u.id}`), 'Acesso removido.').then(recarregar)}>
                 Remover
@@ -594,8 +614,11 @@ function Usuarios({ admin, eu }: { admin: boolean; eu: Usuario }) {
             </Campo>
             <Campo rotulo="Permissão">
               <select className="input" value={f.papel} onChange={(e) => setF({ ...f, papel: e.target.value })}>
-                <option value="tesoureiro">Tesoureiro (sócios, mensalidades, caixa)</option>
-                <option value="admin">Administrador (tudo, inclusive ajustes)</option>
+                {PAPEIS.map((x) => (
+                  <option key={x.valor} value={x.valor}>
+                    {x.nome} ({x.descricao})
+                  </option>
+                ))}
               </select>
             </Campo>
           </div>

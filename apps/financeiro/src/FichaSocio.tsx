@@ -6,7 +6,7 @@ import type { Documento, Mensagem, Socio } from '@shared/tipos';
 import { EditorFoto } from '@shared/Foto';
 import { Documentos } from '@shared/Documentos';
 import { Conversa } from '@shared/Conversa';
-import { api, type Usuario } from './api';
+import { api, podeAutorizar, podeTudo, type Usuario } from './api';
 import { AcoesMensalidade, LinhaMensalidade } from './Baixa';
 
 interface Cfg {
@@ -71,12 +71,12 @@ export function FichaSocio({ id, usuario, abaInicial }: { id: string; usuario: U
               {socio.convidado_por && <div>Inscrição pelo link de cadastro de <b>{socio.convidado_por}</b></div>}
             </div>
             {socio.status === 'pendente' &&
-              (usuario.papel === 'admin' ? (
+              (podeAutorizar(usuario) ? (
                 <button className="btn ok" disabled={ocupado} onClick={() => rodar(() => api.post(`/admin/socios/${id}/aprovar`), 'Inscrição autorizada e matrícula gerada.').then(recarregar)}>
                   <Icone nome="check" /> Autorizar inscrição
                 </button>
               ) : (
-                <span className="tag warn">Aguardando autorização de um administrador</span>
+                <span className="tag warn">Aguardando autorização da diretoria</span>
               ))}
           </div>
           <LinksDocumentos texto={socio.documentos} />
@@ -140,7 +140,7 @@ export function FichaSocio({ id, usuario, abaInicial }: { id: string; usuario: U
               </button>
             )}
             <span className="sp" />
-            {socio && usuario.papel === 'admin' && (
+            {socio && podeTudo(usuario) && (
               <button
                 className="btn ghost"
                 style={{ color: 'var(--bad)' }}

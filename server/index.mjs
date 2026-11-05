@@ -96,7 +96,14 @@ const exigir = (tipo) => (req, _res, next) => {
   }
   next();
 };
-const soAdmin = (req, _res, next) => (req.usuario?.papel === 'admin' ? next() : next(erro(403, 'Somente administradores.')));
+// Perfis do Financeiro: Administrador e Presidente podem tudo; a Diretoria fica um nível abaixo
+// (tudo da tesouraria + autorizar inscrições); o Tesoureiro cuida de sócios, mensalidades e caixa.
+const PAPEIS = ['admin', 'presidente', 'diretoria', 'tesoureiro'];
+const TOPO = ['admin', 'presidente'];
+const podeTudo = (u) => TOPO.includes(u?.papel);
+const podeAutorizar = (u) => podeTudo(u) || u?.papel === 'diretoria';
+const soAdmin = (req, _res, next) => (podeTudo(req.usuario) ? next() : next(erro(403, 'Somente a presidência ou um administrador.')));
+const soDiretoria = (req, _res, next) => (podeAutorizar(req.usuario) ? next() : next(erro(403, 'Somente a diretoria pode autorizar inscrições.')));
 
 // Freio simples contra tentativa de adivinhar senha (por IP + login).
 const tentativas = new Map();
@@ -402,16 +409,16 @@ adm.get('/socios/:id', rota((req) => {
 
 adm.post('/socios', rota((req) => buscarSocio(criarSocio(req.body ?? {}, { admin: true }))));
 adm.put('/socios/:id', rota((req) => {
-  // Tirar uma inscrição de "Aguardando aprovação" é aprovar: só administrador.
+  // Tirar uma inscrição de "Aguardando aprovação" é aprovar: só diretoria, presidência ou administrador.
   const atual = db.prepare('SELECT status FROM socios WHERE id = ?').get(req.params.id);
-  if (atual?.status === 'pendente' && req.body?.status && req.body.status !== 'pendente' && req.usuario.papel !== 'admin') {
-    throw erro(403, 'Só um administrador pode aprovar inscrições.');
+  if (atual?.status === 'pendente' && req.body?.status && req.body.status !== 'pendente' && !podeAutorizar(req.usuario)) {
+    throw erro(403, 'Somente a diretoria pode autorizar inscrições.');
   }
   return atualizarSocio(Number(req.params.id), req.body ?? {}, { admin: true });
 }));
 
-// Inscrições feitas pelo app (inclusive por link de cadastro) só entram depois da autorização de um administrador.
-adm.post('/socios/:id/aprovar', soAdmin, rota((req) => {
+// Inscrições feitas pelo app (inclusive por link de cadastro) só entram depois da autorização da diretoria.
+adm.post('/socios/:id/aprovar', soDiretoria, rota((req) => {
   const s = db.prepare('SELECT * FROM socios WHERE id = ?').get(req.params.id);
   if (!s) throw erro(404, 'Sócio não encontrado.');
   return atualizarSocio(s.id, { ...publicar(s), status: 'ativo' }, { admin: true });
@@ -518,10 +525,24 @@ adm.post('/usuarios', soAdmin, rota((req) => {
   const { nome, login, senha, papel } = req.body ?? {};
   if (!nome || !login || String(senha ?? '').length < 8) throw erro(400, 'Preencha nome, usuário e uma senha com pelo menos 8 caracteres.');
   if (db.prepare('SELECT 1 FROM usuarios WHERE login = ?').get(login.trim().toLowerCase())) throw erro(409, 'Já existe um usuário com esse login.');
-  db.prepare('INSERT INTO usuarios (nome, login, senha_hash, papel) VALUES (?, ?, ?, ?)').run(nome.trim(), login.trim().toLowerCase(), hashSenha(senha), papel === 'admin' ? 'admin' : 'tesoureiro');
+  db.prepare('INSERT INTO usuarios (nome, login, senha_hash, papel) VALUES (?, ?, ?, ?)').run(nome.trim(), login.trim().toLowerCase(), hashSenha(senha), PAPEIS.includes(papel) ? papel : 'tesoureiro');
+}));
+// Sempre fica pelo menos uma pessoa que pode tudo (presidência ou administrador).
+const ultimoTopo = (id) => {
+  const u = db.prepare('SELECT papel FROM usuarios WHERE id = ?').get(id);
+  return TOPO.includes(u?.papel) && db.prepare(`SELECT COUNT(*) n FROM usuarios WHERE papel IN ('admin', 'presidente')`).get().n <= 1;
+};
+adm.put('/usuarios/:id', soAdmin, rota((req) => {
+  const papel = req.body?.papel;
+  if (!PAPEIS.includes(papel)) throw erro(400, 'Perfil inválido.');
+  if (Number(req.params.id) === req.usuario.id) throw erro(400, 'Você não pode mudar o seu próprio perfil.');
+  if (!db.prepare('SELECT 1 FROM usuarios WHERE id = ?').get(req.params.id)) throw erro(404, 'Usuário não encontrado.');
+  if (!TOPO.includes(papel) && ultimoTopo(req.params.id)) throw erro(400, 'Precisa ficar pelo menos uma pessoa com perfil de Presidente ou Administrador.');
+  db.prepare('UPDATE usuarios SET papel = ? WHERE id = ?').run(papel, req.params.id);
 }));
 adm.delete('/usuarios/:id', soAdmin, rota((req) => {
   if (Number(req.params.id) === req.usuario.id) throw erro(400, 'Você não pode remover a si mesmo.');
+  if (ultimoTopo(req.params.id)) throw erro(400, 'Precisa ficar pelo menos uma pessoa com perfil de Presidente ou Administrador.');
   db.prepare('DELETE FROM usuarios WHERE id = ?').run(req.params.id);
   db.prepare("DELETE FROM sessoes WHERE tipo = 'admin' AND ref_id = ?").run(req.params.id);
 }));

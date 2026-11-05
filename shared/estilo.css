@@ -359,3 +359,4 @@ main:focus { outline: none; }
 .tour-pontos i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
 .tour-pontos i.ativo { background: var(--brand); width: 18px; border-radius: 4px; }
 :root[data-contraste='alto'] .tour-luz { box-shadow: 0 0 0 9999px rgb(0 0 0 / 75%), 0 0 0 4px var(--brand); }
+.input.sm { min-height: 36px; padding: 4px 8px; font-size: .9rem; }
