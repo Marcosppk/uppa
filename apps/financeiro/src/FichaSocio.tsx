@@ -8,6 +8,7 @@ import { Documentos } from '@shared/Documentos';
 import { Conversa } from '@shared/Conversa';
 import { api, podeAutorizar, podeTudo, type Usuario } from './api';
 import { AcoesMensalidade, LinhaMensalidade } from './Baixa';
+import { CampoMes } from '@shared/CampoData';
 
 interface Cfg {
   valor_ate_2sm: string;
@@ -156,7 +157,7 @@ export function FichaSocio({ id, usuario, abaInicial }: { id: string; usuario: U
         <div className="card">
           <div className="row" style={{ marginBottom: 8 }}>
             <Campo rotulo="Lançar mensalidade do mês">
-              <input className="input" type="month" value={comp} onChange={(e) => setComp(e.target.value)} />
+              <CampoMes valor={comp} aoMudar={setComp} />
             </Campo>
             <button className="btn sec" style={{ alignSelf: 'end' }} disabled={ocupado} onClick={() => rodar(() => api.post(`/admin/socios/${id}/mensalidades`, { competencia: comp }), 'Mensalidade lançada.').then(recarregar)}>
               <Icone nome="mais" /> Lançar

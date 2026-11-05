@@ -2,6 +2,10 @@
 
 <!-- Itens com [Financeiro] ou [Associados] aparecem só naquele app; sem marca, nos dois. -->
 
+## 1.13.0 — 05/11/2026
+- Campos de data agora aceitam digitação (dd/mm/aaaa, as barras entram sozinhas; "1/5/85" vira 01/05/1985), com o botão de calendário ao lado para quem prefere escolher. Datas impossíveis ou fora do permitido são avisadas no próprio campo.
+- [Financeiro] O mês da mensalidade na ficha do sócio também pode ser digitado (mm/aaaa).
+
 ## 1.12.0 — 05/11/2026
 - Botão de olho para mostrar ou esconder a senha em todas as telas de entrada e em todos os campos de senha (criar senha, trocar senha, inscrição e ajustes).
 

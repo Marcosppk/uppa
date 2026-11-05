@@ -3,6 +3,7 @@ import { Calendario } from '@shared/Calendario';
 import { Campo, Icone, Modal, useAcao } from '@shared/ui';
 import type { DataDoMes, Evento } from '@shared/tipos';
 import { api } from './api';
+import { CampoData } from '@shared/CampoData';
 
 type Rascunho = Partial<Evento>;
 
@@ -64,7 +65,7 @@ export function Agenda() {
             </Campo>
             <div className="grid2">
               <Campo rotulo="Data">
-                <input className="input" type="date" value={editando.data ?? ''} onChange={(e) => set('data', e.target.value)} required />
+                <CampoData valor={editando.data} aoMudar={(v) => set('data', v)} required />
               </Campo>
               <Campo rotulo="Local">
                 <input className="input" value={editando.local ?? ''} onChange={(e) => set('local', e.target.value)} maxLength={200} placeholder="Ex.: Sede da UPPA" />

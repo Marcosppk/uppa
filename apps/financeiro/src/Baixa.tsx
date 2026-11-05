@@ -4,6 +4,7 @@ import { dinheiro, mesExtenso, hojeIso, dataBr } from '@shared/formato';
 import { FORMAS_PAGAMENTO, rotulo } from '@shared/opcoes.js';
 import type { Mensalidade } from '@shared/tipos';
 import { api } from './api';
+import { CampoData } from '@shared/CampoData';
 
 /** Janela para dar baixa (registrar pagamento) de uma mensalidade. */
 export function BaixaModal({ m, nome, aoFechar, aoSalvar }: { m: Mensalidade; nome?: string; aoFechar: () => void; aoSalvar: () => void }) {
@@ -38,7 +39,7 @@ export function BaixaModal({ m, nome, aoFechar, aoSalvar }: { m: Mensalidade; no
             </select>
           </Campo>
           <Campo rotulo="Data do pagamento">
-            <input className="input" type="date" value={data} onChange={(e) => setData(e.target.value)} />
+            <CampoData valor={data} aoMudar={setData} required />
           </Campo>
         </div>
         <p className="muted small">A receita entra automaticamente no Caixa e o sócio vê a mensalidade como paga no app.</p>

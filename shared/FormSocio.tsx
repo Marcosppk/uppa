@@ -5,6 +5,7 @@ import type { Autista, Socio } from './tipos';
 import { Campo, Icone, SimNao } from './ui';
 import { mascaraCpf, mascaraTelefone, idade, dinheiro } from './formato';
 import { CATEGORIAS, RENDAS, RENDA_ATE_2SM, ATIVIDADE_REMUNERADA, PARTICIPACAO_ECONOMICA, ISENCOES } from './opcoes.js';
+import { CampoData } from './CampoData';
 
 export type DadosSocio = Partial<Socio> & { autistas?: Autista[] };
 type Modo = 'inscricao' | 'proprio' | 'admin';
@@ -29,7 +30,7 @@ export function FormSocio({ valor, onChange, modo, valores }: { valor: DadosSoci
             <input className="input" inputMode="numeric" value={mascaraCpf(valor.cpf ?? '')} onChange={(e) => set('cpf', e.target.value.replace(/\D/g, ''))} disabled={fixo} placeholder="000.000.000-00" required={modo === 'inscricao'} />
           </Campo>
           <Campo rotulo="Data de nascimento">
-            <input className="input" type="date" value={valor.nascimento ?? ''} max={new Date().toLocaleDateString('sv-SE')} onChange={(e) => set('nascimento', e.target.value || null)} autoComplete="bday" />
+            <CampoData valor={valor.nascimento} max={new Date().toLocaleDateString('sv-SE')} aoMudar={(v) => set('nascimento', v || null)} autoComplete="bday" />
           </Campo>
           <Campo rotulo="Telefone (WhatsApp)">
             <input className="input" inputMode="tel" value={mascaraTelefone(valor.telefone ?? '')} onChange={(e) => set('telefone', e.target.value)} autoComplete="tel" placeholder="(95) 99999-9999" />
@@ -106,7 +107,7 @@ export function FormSocio({ valor, onChange, modo, valores }: { valor: DadosSoci
                   <input className="input" value={a.nome} onChange={(e) => setAutista(i, { nome: e.target.value })} />
                 </Campo>
                 <Campo rotulo="Data de nascimento" ajuda={anos !== null ? `${anos} ${anos === 1 ? 'ano' : 'anos'}` : a.nascimento_texto ? `Na planilha: "${a.nascimento_texto}"` : a.idade_informada ? `Idade informada: ${a.idade_informada}` : undefined}>
-                  <input className="input" type="date" value={a.nascimento ?? ''} onChange={(e) => setAutista(i, { nascimento: e.target.value || null })} />
+                  <CampoData valor={a.nascimento} max={new Date().toLocaleDateString('sv-SE')} aoMudar={(v) => setAutista(i, { nascimento: v || null })} />
                 </Campo>
               </div>
             </div>

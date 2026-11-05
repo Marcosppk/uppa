@@ -4,6 +4,7 @@ import { dinheiro, mesExtenso, competenciaAtual, mudarMes, dataBr, hojeIso } fro
 import { CATEGORIAS_RECEITA, CATEGORIAS_DESPESA } from '@shared/opcoes.js';
 import type { Lancamento } from '@shared/tipos';
 import { api } from './api';
+import { CampoData } from '@shared/CampoData';
 
 export function Caixa() {
   const [mes, setMes] = useState(competenciaAtual());
@@ -137,7 +138,7 @@ function NovoLancamento({ tipo, aoFechar, aoSalvar }: { tipo: 'receita' | 'despe
             <input className="input num" inputMode="decimal" value={f.valor} onChange={(e) => setF({ ...f, valor: e.target.value })} placeholder="0,00" required autoFocus />
           </Campo>
           <Campo rotulo="Data">
-            <input className="input" type="date" value={f.data} onChange={(e) => setF({ ...f, data: e.target.value })} required />
+            <CampoData valor={f.data} aoMudar={(v) => setF({ ...f, data: v })} required />
           </Campo>
         </div>
         <Campo rotulo="Categoria">
