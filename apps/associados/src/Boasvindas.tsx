@@ -4,6 +4,16 @@ import { FormSocio, type DadosSocio } from '@shared/FormSocio';
 import { mascaraCpf } from '@shared/formato';
 import { lembrarLogin } from '@shared/lembrar';
 import { api } from './api';
+import { VERSAO } from '@shared/versao';
+
+/** Rodapé discreto das telas de entrada. */
+export const RodapeEntrada = () => (
+  <footer className="rodape-entrada">
+    <span>UPPA Roraima — União de Pais e Pessoas Autistas</span>
+    <span>Seus dados são protegidos pela LGPD</span>
+    <span>Versão {VERSAO}</span>
+  </footer>
+);
 
 type Tela = 'inicio' | 'entrar' | 'primeiro' | 'inscricao' | 'enviada';
 export type AoEntrar = (token: string, lembrar?: boolean) => void;
@@ -22,35 +32,41 @@ export function Boasvindas({ aoEntrar, inicial = 'inicio', convite }: { aoEntrar
   if (tela === 'inscricao') return <Inscricao voltar={voltar} convite={convite} aoEnviar={(t) => (t ? aoEntrar(t) : setTela('enviada'))} />;
 
   return (
-    <div className="hero">
-      <div className="marca">
-        <Logo tamanho={150} />
-        <h1>UPPA Associados</h1>
-        <span className="muted">União de Pais e Pessoas Autistas</span>
-      </div>
-      {tela === 'inicio' && (
-        <div className="stack">
-          <button className="btn block" onClick={() => setTela('entrar')}>
-            Entrar
-          </button>
-          <button className="btn sec block" onClick={() => setTela('primeiro')}>
-            Primeiro acesso (já sou sócio)
-          </button>
-          <button className="btn ghost block" onClick={() => setTela('inscricao')}>
-            Quero me associar
-          </button>
+    <div className="tela-entrada">
+      <main className="cartao-entrada">
+        <div className="marca-entrada">
+          <Logo tamanho={32} /> UPPA Associados
         </div>
-      )}
-      {tela === 'enviada' && (
-        <div className="card stack center">
-          <h2>Inscrição enviada!</h2>
-          <p>Seu cadastro agora aguarda a autorização de um administrador da UPPA. Para entrar no app, use seu CPF e a senha padrão 12345678 — o app vai pedir para você criar a sua.</p>
-          <button className="btn" onClick={() => setTela('entrar')}>
-            Entrar
-          </button>
-        </div>
-      )}
-      {(tela === 'entrar' || tela === 'primeiro') && <Entrar key={tela} voltar={voltar} primeiro={tela === 'primeiro'} aoEntrar={aoEntrar} />}
+        {tela === 'inicio' && (
+          <>
+            <div className="ilustracao-entrada">
+              <Logo tamanho={96} />
+            </div>
+            <h1>Boas-vindas à UPPA</h1>
+            <p className="subtitulo">Carteirinha, mensalidades, avisos e a sala de acolhimento, tudo num só lugar.</p>
+            <button className="btn block" onClick={() => setTela('entrar')}>
+              Entrar
+            </button>
+            <button className="btn sec block" onClick={() => setTela('primeiro')}>
+              Primeiro acesso (já sou sócio)
+            </button>
+            <button type="button" className="link-entrada" onClick={() => setTela('inscricao')}>
+              Ainda não sou sócio — quero me associar
+            </button>
+          </>
+        )}
+        {tela === 'enviada' && (
+          <>
+            <h1>Inscrição enviada!</h1>
+            <p className="subtitulo">Seu cadastro agora aguarda a autorização de um administrador da UPPA. Para entrar no app, use seu CPF e a senha padrão 12345678 — o app vai pedir para você criar a sua.</p>
+            <button className="btn block" onClick={() => setTela('entrar')}>
+              Entrar
+            </button>
+          </>
+        )}
+        {(tela === 'entrar' || tela === 'primeiro') && <Entrar key={tela} voltar={voltar} primeiro={tela === 'primeiro'} aoEntrar={aoEntrar} />}
+      </main>
+      <RodapeEntrada />
     </div>
   );
 }
@@ -83,8 +99,14 @@ function Entrar({ voltar, primeiro, aoEntrar }: { voltar: React.ReactNode; prime
   if (provisorio) return <CriarSenha aoCriar={() => aoEntrar(provisorio, lembrar)} />;
 
   return (
-    <form className="card stack" onSubmit={enviar}>
+    <form className="stack" onSubmit={enviar}>
       {voltar}
+      {memoria.usuario && !primeiro && (
+        <span className="pilula" aria-label="CPF lembrado neste aparelho">
+          <Icone nome="perfil" /> {mascaraCpf(memoria.usuario)}
+        </span>
+      )}
+      <h1>{primeiro ? 'Primeiro acesso' : 'Entrar'}</h1>
       {primeiro && (
         <div className="alert">
           No primeiro acesso, entre com o seu <b>CPF</b> e a senha padrão <b>12345678</b>. Em seguida você cria a sua própria senha.
@@ -129,9 +151,9 @@ function CriarSenha({ aoCriar }: { aoCriar: () => void }) {
     });
   };
   return (
-    <form className="card stack" onSubmit={enviar}>
-      <h2>Crie sua senha</h2>
-      <p className="small">Bem-vindo(a)! Por segurança, troque a senha padrão por uma senha só sua. Você vai usá-la com o seu CPF nas próximas vezes.</p>
+    <form className="stack" onSubmit={enviar}>
+      <h1>Crie sua senha</h1>
+      <p className="subtitulo">Bem-vindo(a)! Por segurança, troque a senha padrão por uma senha só sua. Você vai usá-la com o seu CPF nas próximas vezes.</p>
       <Campo rotulo="Nova senha" ajuda="Pelo menos 6 caracteres, diferente de 12345678.">
         <input className="input" type="password" value={f.nova} onChange={(e) => setF({ ...f, nova: e.target.value })} required autoComplete="new-password" autoFocus />
       </Campo>

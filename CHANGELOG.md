@@ -1,5 +1,10 @@
 # Novidades dos apps da UPPA
 
+## 1.9.0 — 05/11/2026
+- Visual novo, mais limpo e profissional: fundo claro com formas suaves (na cor da campanha do mês), cartões brancos com cantos discretos, letras mais leves e botões firmes.
+- Telas de entrada dos dois apps num cartão central, com o usuário lembrado em destaque e rodapé discreto.
+- Menu lateral e barra do celular translúcidos; tema escuro e alto contraste ajustados ao visual novo.
+
 ## 1.8.0 — 05/11/2026
 - Pix do Sicredi com baixa automática: cada mensalidade ganha um QR Pix próprio e, quando o sócio paga, a mensalidade fica paga sozinha (sem "Já paguei").
 

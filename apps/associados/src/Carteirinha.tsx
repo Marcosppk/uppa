@@ -5,6 +5,7 @@ import { dataBr } from '@shared/formato';
 import { CATEGORIAS } from '@shared/opcoes.js';
 import { api, URL_PUBLICA, type Eu } from './api';
 import { urlApi } from '@shared/api';
+import { RodapeEntrada } from './Boasvindas';
 
 export function useQr(texto: string | null) {
   const [img, setImg] = useState<string | null>(null);
@@ -84,12 +85,12 @@ export function Verificar({ codigo }: { codigo: string }) {
     api.get<typeof r>(`/publico/verificar/${encodeURIComponent(codigo)}`).then(setR).catch((e) => setErro(e.message));
   }, [codigo]);
   return (
-    <div className="hero">
-      <div className="marca">
-        <Logo tamanho={120} />
+    <div className="tela-entrada">
+      <main className="cartao-entrada center">
+        <div className="marca-entrada">
+          <Logo tamanho={32} /> UPPA Roraima
+        </div>
         <h1>Verificação de sócio</h1>
-      </div>
-      <div className="card stack center">
         {erro ? (
           <div className="alert bad">{erro}</div>
         ) : !r ? (
@@ -106,7 +107,8 @@ export function Verificar({ codigo }: { codigo: string }) {
             </p>
           </>
         )}
-      </div>
+      </main>
+      <RodapeEntrada />
     </div>
   );
 }

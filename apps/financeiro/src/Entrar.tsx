@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Campo, Logo, Carregando } from '@shared/ui';
+import { Campo, Logo, Carregando, Icone } from '@shared/ui';
+import { VERSAO } from '@shared/versao';
 import { lembrarLogin } from '@shared/lembrar';
 import { api, type Usuario } from './api';
 
@@ -33,15 +34,19 @@ export function Entrar({ aoEntrar }: { aoEntrar: (u: Usuario) => void }) {
   }
 
   return (
-    <div className="entrar">
-      <form className="card stack" onSubmit={enviar}>
-        <div className="marca">
-          <Logo tamanho={120} />
-          <h1 style={{ margin: 0 }}>UPPA Financeiro</h1>
-          <span className="muted">Tesouraria da União de Pais e Pessoas Autistas</span>
+    <div className="tela-entrada">
+      <form className="cartao-entrada" onSubmit={enviar}>
+        <div className="marca-entrada">
+          <Logo tamanho={32} /> UPPA Financeiro
         </div>
+        {memoria.usuario && !primeiro && (
+          <span className="pilula" aria-label="Usuário lembrado neste computador">
+            <Icone nome="perfil" /> {memoria.usuario}
+          </span>
+        )}
+        <h1>{primeiro ? 'Criar o administrador' : 'Entrar na tesouraria'}</h1>
+        <p className="subtitulo">{primeiro ? 'Primeiro acesso: crie o usuário administrador da UPPA.' : 'Sócios, mensalidades, caixa e avisos da UPPA Roraima.'}</p>
         {primeiro === null && !erro && <Carregando />}
-        {primeiro && <div className="alert">Primeiro acesso: crie o usuário administrador da tesouraria.</div>}
         {primeiro && (
           <Campo rotulo="Seu nome">
             <input className="input" value={f.nome} onChange={(e) => setF({ ...f, nome: e.target.value })} required autoComplete="name" />
@@ -70,6 +75,11 @@ export function Entrar({ aoEntrar }: { aoEntrar: (u: Usuario) => void }) {
           </button>
         )}
       </form>
+      <footer className="rodape-entrada">
+        <span>UPPA Roraima — União de Pais e Pessoas Autistas</span>
+        <span>Acesso restrito à diretoria e à tesouraria</span>
+        <span>Versão {VERSAO}</span>
+      </footer>
     </div>
   );
 }
