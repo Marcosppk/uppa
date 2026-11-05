@@ -36,6 +36,9 @@ export interface Socio {
   controle_planilha: string | null;
   observacoes: string | null;
   tem_senha: boolean;
+  /** Endereço assinado da foto (perfil e carteirinha), ou null. */
+  foto?: string | null;
+  n_documentos?: number;
   /** Inscrição feita por link de cadastro: quem convidou. */
   convidado_por?: string | null;
   autistas?: Autista[];
@@ -56,6 +59,9 @@ export interface Mensalidade {
   informado_em: string | null;
   informado_obs: string | null;
   pix?: string | null;
+  /** Pagamento com cartão (Mercado Pago) disponível: total já com a taxa do cartão. */
+  cartao?: { total: number; taxa: number } | null;
+  mp_preferencia?: string | null;
   nome?: string;
   matricula?: number | null;
   telefone?: string | null;
@@ -92,4 +98,45 @@ export interface Anexo {
   video?: boolean;
   /** Caminho assinado (/api/publico/anexo/...), abre sem login. */
   url: string;
+}
+
+export interface Documento {
+  id: number;
+  tipo: string;
+  descricao: string | null;
+  nome: string;
+  mime: string;
+  tamanho: number;
+  imagem: boolean;
+  enviado_por: string;
+  criado_em: string;
+  /** Endereço assinado que vence em 15 minutos. */
+  url: string;
+}
+
+export interface Evento {
+  id: number;
+  titulo: string;
+  descricao: string | null;
+  data: string;
+  hora_inicio: string | null;
+  hora_fim: string | null;
+  local: string | null;
+  publicado: number;
+}
+
+export interface DataDoMes {
+  data: string;
+  titulo: string;
+  tipo: 'causa' | 'aniversario';
+  emoji: string;
+}
+
+export interface Mensagem {
+  id: number;
+  de: 'diretoria' | 'socio';
+  autor: string;
+  texto: string;
+  criado_em: string;
+  lida_em: string | null;
 }

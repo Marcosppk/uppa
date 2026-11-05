@@ -13,6 +13,7 @@ interface DadosPainel {
   categorias: { categoria: string | null; n: number }[];
   informadas: number;
   causa: { titulo: string; emoji: string }[];
+  mensagens: number;
 }
 
 export function Painel() {
@@ -42,6 +43,11 @@ export function Painel() {
       {(d.socios.pendente ?? 0) > 0 && (
         <a className="alert warn row" href="#/socios?status=pendente" style={{ textDecoration: 'none', marginBottom: 12 }}>
           <b>{d.socios.pendente}</b> inscrição(ões) nova(s) pelo app Associados aguardando aprovação →
+        </a>
+      )}
+      {d.mensagens > 0 && (
+        <a className="alert row" href="#/mensagens" style={{ textDecoration: 'none', marginBottom: 12 }}>
+          ✉️ <b>{d.mensagens}</b> {d.mensagens === 1 ? 'mensagem nova de sócio' : 'mensagens novas de sócios'} — responder →
         </a>
       )}
       {d.informadas > 0 && (

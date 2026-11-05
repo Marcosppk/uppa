@@ -1,6 +1,9 @@
 import { useDados, Logo, TagMensalidade, Icone } from '@shared/ui';
 import { dinheiro, mesExtenso, primeiroNome, dataBr, competenciaAtual } from '@shared/formato';
-import type { Aviso } from '@shared/tipos';
+import type { Aviso, Evento } from '@shared/tipos';
+import { Avatar } from '@shared/Foto';
+import { FaixaCampanha } from '@shared/campanhas';
+import { horario } from '@shared/Calendario';
 import { LinkCadastro, type Convite } from '@shared/LinkCadastro';
 import { AnexosAviso } from '@shared/Anexos';
 import { TextoAviso } from '@shared/TextoAviso';
@@ -11,18 +14,34 @@ import { api, type Eu } from './api';
 export function Inicio({ eu }: { eu: Eu }) {
   const { socio, mensalidades } = eu;
   const avisos = useDados(() => api.get<Aviso[]>('/associado/avisos')).dados;
+  const proximos = useDados(() => api.get<Evento[]>('/associado/agenda/proximos')).dados;
   const abertas = mensalidades.filter((m) => m.status === 'pendente');
   const doMes = mensalidades.find((m) => m.competencia === competenciaAtual());
 
   return (
     <>
       <div className="ola">
-        <Logo tamanho={60} />
-        <div>
+        {socio.foto ? <Avatar nome={socio.nome} foto={socio.foto} tamanho={60} /> : <Logo tamanho={60} />}
+        <div className="sp">
           <h1>Olá, {primeiroNome(socio.nome)}!</h1>
           <p className="muted small">{eu.associacao.nome}</p>
         </div>
+        <a className="btn sec sm botao-mensagens" href="#/mensagens" aria-label={eu.nao_lidas ? `Mensagens da diretoria, ${eu.nao_lidas} nova(s)` : 'Mensagens da diretoria'}>
+          <Icone nome="mensagem" />
+          {eu.nao_lidas > 0 && <span className="selo-numero">{eu.nao_lidas}</span>}
+        </a>
       </div>
+
+      {eu.associacao.campanhas && <FaixaCampanha />}
+
+      {eu.nao_lidas > 0 && (
+        <a className="alert info row" href="#/mensagens" style={{ textDecoration: 'none', marginBottom: 12 }}>
+          <span className="sp">
+            ✉️ Você tem <b>{eu.nao_lidas}</b> {eu.nao_lidas === 1 ? 'mensagem nova' : 'mensagens novas'} da diretoria.
+          </span>
+          <Icone nome="seta" />
+        </a>
+      )}
 
       {eu.comemoracoes.length > 0 && <Presente comemoracoes={eu.comemoracoes} nome={primeiroNome(socio.nome)} />}
 
@@ -35,7 +54,7 @@ export function Inicio({ eu }: { eu: Eu }) {
 
       {socio.status === 'pendente' && (
         <div className="alert warn" style={{ marginBottom: 12 }}>
-          <b>Sua inscrição está em análise.</b> Assim que a diretoria aprovar, sua carteirinha de sócio aparece aqui. Lembre-se de enviar os documentos em PDF para <b>{eu.associacao.email}</b>.
+          <b>Sua inscrição está em análise.</b> Assim que a diretoria aprovar, sua carteirinha de sócio aparece aqui. Envie os laudos e documentos em <a href="#/dados">Meus dados</a> (dá para tirar foto pelo celular).
         </div>
       )}
       {socio.status === 'inativo' && (
@@ -83,6 +102,35 @@ export function Inicio({ eu }: { eu: Eu }) {
         </div>
         <LinkCadastro carregar={() => api.get<Convite>('/associado/convite')} />
       </div>
+
+      <div className="row between" style={{ marginTop: 24 }}>
+        <h2 style={{ margin: 0 }}>Próximos eventos</h2>
+        <a className="btn ghost sm" href="#/agenda">
+          <Icone nome="agenda" /> Ver calendário
+        </a>
+      </div>
+      {!proximos ? null : proximos.length === 0 ? (
+        <a className="card empty" href="#/agenda" style={{ display: 'block', textDecoration: 'none', marginTop: 8 }}>
+          Nenhum evento marcado. Veja o calendário do mês.
+        </a>
+      ) : (
+        <ul className="card list" style={{ marginTop: 8 }}>
+          {proximos.map((e) => (
+            <li key={e.id} className="click" onClick={() => (location.hash = '#/agenda')}>
+              <span className="tag" style={{ minWidth: 64, textAlign: 'center' }}>
+                {e.data.split('-').reverse().slice(0, 2).join('/')}
+              </span>
+              <div className="sp">
+                <b>{e.titulo}</b>
+                <div className="muted small">
+                  {horario(e)}
+                  {e.local ? ` · ${e.local}` : ''}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <h2 style={{ marginTop: 24 }}>Avisos da UPPA</h2>
       {!avisos ? null : avisos.length === 0 ? (

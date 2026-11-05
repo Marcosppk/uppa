@@ -93,3 +93,6 @@
 @media (prefers-reduced-motion: reduce) {
   .envelope, .carta-aberta { animation: none; }
 }
+
+.ola .botao-mensagens { position: relative; align-self: flex-start; }
+.ola .botao-mensagens .selo-numero { position: absolute; top: -6px; right: -6px; }

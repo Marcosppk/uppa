@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useDados, Estado, Icone, Iniciais, TagSocio, ir, useAcao, Modal } from '@shared/ui';
+import { useDados, Estado, Icone, TagSocio, ir, useAcao, Modal } from '@shared/ui';
 import { cpfFormatado, dinheiro, mesCurto } from '@shared/formato';
 import { CATEGORIAS, rotulo } from '@shared/opcoes.js';
 import type { Socio } from '@shared/tipos';
 import { LinkCadastro, type Convite } from '@shared/LinkCadastro';
+import { Avatar } from '@shared/Foto';
 import { api } from './api';
 
 export function Socios({ statusInicial = '' }: { statusInicial?: string }) {
@@ -98,7 +99,7 @@ export function Socios({ statusInicial = '' }: { statusInicial?: string }) {
                     <tr key={s.id} className="click" onClick={() => ir(`/socios/${s.id}`)}>
                       <td>
                         <div className="row" style={{ flexWrap: 'nowrap', gap: 10 }}>
-                          <Iniciais nome={s.nome} />
+                          <Avatar nome={s.nome} foto={s.foto} />
                           <div>
                             <b>{s.nome}</b>
                             <div className="muted small">

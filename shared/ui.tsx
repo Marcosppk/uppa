@@ -202,6 +202,10 @@ const ICONES: Record<string, string> = {
   copiar: 'M9 9h11v11H9zM5 15H4V4h11v1',
   baixar: 'M12 3v12M7 10l5 5 5-5M5 21h14',
   enviar: 'M12 21V9M7 14l5-5 5 5M5 3h14',
+  agenda: 'M4 5h16a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1M3 10h18M8 3v4M16 3v4M7.5 14h1M11.5 14h1M15.5 14h1M7.5 17h1M11.5 17h1',
+  mensagem: 'M4 4h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H9l-5 4v-4H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1M7 9h10M7 12.5h6',
+  camera: 'M4 7h3l2-3h6l2 3h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8',
+  documento: 'M6 3h8l5 5v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1M14 3v5h5M8.5 13h7M8.5 16.5h7',
   coracao: 'M12 20s-7.5-4.6-9.3-9C1.4 7.7 3.4 4.5 6.8 4.5c2.1 0 3.6 1.2 5.2 3.1 1.6-1.9 3.1-3.1 5.2-3.1 3.4 0 5.4 3.2 4.1 6.5C19.5 15.4 12 20 12 20z',
 };
 export function Icone({ nome, className = 'ico' }: { nome: keyof typeof ICONES | string; className?: string }) {

@@ -57,6 +57,7 @@ export const FORMAS_PAGAMENTO = [
   { valor: 'pix', rotulo: 'PIX' },
   { valor: 'dinheiro', rotulo: 'Dinheiro' },
   { valor: 'transferencia', rotulo: 'Transferência' },
+  { valor: 'cartao', rotulo: 'Cartão (Mercado Pago)' },
   { valor: 'outro', rotulo: 'Outro' },
 ];
 
@@ -64,3 +65,12 @@ export const CATEGORIAS_RECEITA = ['Mensalidade', 'Doação', 'Evento', 'Venda',
 export const CATEGORIAS_DESPESA = ['Aluguel', 'Água/Luz/Internet', 'Material', 'Evento', 'Transporte', 'Serviços', 'Tarifas bancárias', 'Outra despesa'];
 
 export const rotulo = (lista, valor) => lista.find((o) => o.valor === valor)?.rotulo ?? valor ?? '';
+
+/** Tipos de documento que o sócio ou a diretoria anexam ao cadastro. */
+export const TIPOS_DOCUMENTO = [
+  { valor: 'laudo', rotulo: 'Laudo médico' },
+  { valor: 'identidade', rotulo: 'Documento de identidade (RG, CPF, certidão)' },
+  { valor: 'residencia', rotulo: 'Comprovante de residência' },
+  { valor: 'beneficio', rotulo: 'Comprovante de benefício (BPC etc.)' },
+  { valor: 'outro', rotulo: 'Outro documento' },
+];

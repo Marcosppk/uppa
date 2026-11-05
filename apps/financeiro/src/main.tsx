@@ -12,10 +12,17 @@ import { Mensalidades } from './Mensalidades';
 import { Caixa } from './Caixa';
 import { Avisos } from './Avisos';
 import { Config } from './Config';
+import { Agenda } from './Agenda';
+import { CaixaMensagens } from './Mensagens';
+import { aplicarCampanha, campanhaDoMes, Laco } from '@shared/campanhas';
 import { AvisoNovaVersao, VERSAO } from '@shared/versao';
 import { aplicarPreferencias, PularParaConteudo } from '@shared/acessibilidade';
 
 aplicarPreferencias();
+// Cor da campanha do mês (a diretoria pode desligar em Ajustes).
+const campanhaLigada = () => api.get<{ campanhas: boolean }>('/publico/config').then((c) => aplicarCampanha(c.campanhas)).catch(() => aplicarCampanha(true));
+aplicarCampanha(true);
+campanhaLigada();
 
 const MENU = [
   { r: '/', ico: 'inicio', t: 'Painel' },
@@ -23,6 +30,8 @@ const MENU = [
   { r: '/mensalidades', ico: 'mensal', t: 'Mensalidades' },
   { r: '/caixa', ico: 'caixa', t: 'Caixa' },
   { r: '/avisos', ico: 'avisos', t: 'Avisos' },
+  { r: '/mensagens', ico: 'mensagem', t: 'Mensagens' },
+  { r: '/agenda', ico: 'agenda', t: 'Agenda' },
   { r: '/config', ico: 'config', t: 'Ajustes' },
 ];
 
@@ -53,12 +62,14 @@ function App() {
 
   let pagina;
   if (!base) pagina = <Painel />;
-  else if (base === 'socios' && id) pagina = <FichaSocio id={id} usuario={usuario} />;
+  else if (base === 'socios' && id) pagina = <FichaSocio key={id} id={id} usuario={usuario} abaInicial={new URLSearchParams(consulta).get('aba') ?? undefined} />;
   else if (base === 'socios') pagina = <Socios key={consulta} statusInicial={new URLSearchParams(consulta).get('status') ?? ''} />;
   else if (base === 'mensalidades') pagina = <Mensalidades />;
   else if (base === 'caixa') pagina = <Caixa />;
   else if (base === 'avisos') pagina = <Avisos />;
-  else if (base === 'config') pagina = <Config usuario={usuario} aoSair={sair} />;
+  else if (base === 'mensagens') pagina = <CaixaMensagens />;
+  else if (base === 'agenda') pagina = <Agenda />;
+  else if (base === 'config') pagina = <Config usuario={usuario} aoSair={sair} aoMudarCampanha={campanhaLigada} />;
   else pagina = <Painel />;
 
   return (
@@ -82,6 +93,9 @@ function App() {
         <div className="quem">
           <span>{usuario.nome}</span>
           <span className="muted small">Versão {VERSAO}</span>
+          {document.documentElement.dataset.campanha && <span className="selo-campanha">
+              <Laco cor={campanhaDoMes().cor} tamanho={18} /> {campanhaDoMes().nome}
+            </span>}
           <button className="btn ghost sm" onClick={sair}>
             <Icone nome="sair" /> Sair
           </button>

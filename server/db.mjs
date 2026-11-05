@@ -109,6 +109,10 @@ for (const sql of [
   'ALTER TABLE socios ADD COLUMN convite TEXT',
   // Data de nascimento do sócio (para os parabéns no aniversário). AAAA-MM-DD.
   'ALTER TABLE socios ADD COLUMN nascimento TEXT',
+  // Pagamento com cartão pelo Mercado Pago (1.7): total cobrado (mensalidade + taxa) e identificadores.
+  'ALTER TABLE mensalidades ADD COLUMN cartao_total REAL',
+  'ALTER TABLE mensalidades ADD COLUMN mp_preferencia TEXT',
+  'ALTER TABLE mensalidades ADD COLUMN mp_pagamento TEXT',
 ]) {
   try {
     db.exec(sql);
@@ -142,6 +146,50 @@ CREATE TABLE IF NOT EXISTS rotinas_feitas (
   chave TEXT PRIMARY KEY,
   feito_em TEXT NOT NULL
 );
+-- Foto do sócio (perfil e carteirinha): uma por sócio, já reduzida no aparelho.
+CREATE TABLE IF NOT EXISTS socio_fotos (
+  socio_id INTEGER PRIMARY KEY REFERENCES socios(id) ON DELETE CASCADE,
+  tipo TEXT NOT NULL,
+  dados BLOB NOT NULL,
+  atualizado_em TEXT NOT NULL
+);
+-- Laudos e documentos do sócio (foto ou PDF).
+CREATE TABLE IF NOT EXISTS socio_documentos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  socio_id INTEGER NOT NULL REFERENCES socios(id) ON DELETE CASCADE,
+  tipo TEXT NOT NULL,                               -- laudo | identidade | residencia | beneficio | outro
+  descricao TEXT,
+  nome TEXT NOT NULL,
+  mime TEXT NOT NULL,
+  tamanho INTEGER NOT NULL,
+  dados BLOB NOT NULL,
+  enviado_por TEXT NOT NULL,
+  criado_em TEXT NOT NULL
+);
+-- Calendário de eventos da associação.
+CREATE TABLE IF NOT EXISTS eventos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  titulo TEXT NOT NULL,
+  descricao TEXT,
+  data TEXT NOT NULL,                               -- AAAA-MM-DD
+  hora_inicio TEXT,                                 -- HH:MM
+  hora_fim TEXT,
+  local TEXT,
+  publicado INTEGER NOT NULL DEFAULT 1,
+  criado_por TEXT,
+  criado_em TEXT NOT NULL
+);
+-- Mensagens privadas entre a diretoria e cada sócio.
+CREATE TABLE IF NOT EXISTS mensagens (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  socio_id INTEGER NOT NULL REFERENCES socios(id) ON DELETE CASCADE,
+  de TEXT NOT NULL,                                 -- diretoria | socio
+  autor TEXT NOT NULL,
+  texto TEXT NOT NULL,
+  criado_em TEXT NOT NULL,
+  lida_em TEXT
+);
+CREATE INDEX IF NOT EXISTS mensagens_socio ON mensagens (socio_id, criado_em);
 `);
 
 const padrao = {

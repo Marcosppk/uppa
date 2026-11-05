@@ -6,6 +6,9 @@ import { CATEGORIAS, rotulo } from '@shared/opcoes.js';
 import { api, type Eu } from './api';
 import { PainelAcessibilidade } from '@shared/acessibilidade';
 import { SobreVersao } from '@shared/versao';
+import { EditorFoto } from '@shared/Foto';
+import { Documentos } from '@shared/Documentos';
+import type { Documento } from '@shared/tipos';
 
 export function MeusDados({ eu, aoMudar, aoSair }: { eu: Eu; aoMudar: () => void; aoSair: () => void }) {
   const [d, setD] = useState<DadosSocio>(eu.socio);
@@ -23,6 +26,15 @@ export function MeusDados({ eu, aoMudar, aoSair }: { eu: Eu; aoMudar: () => void
       <p className="muted small">
         CPF {cpfFormatado(eu.socio.cpf)} · {rotulo(CATEGORIAS, eu.socio.categoria)}. Para mudar nome, CPF ou categoria, fale com a diretoria.
       </p>
+      <section className="card" style={{ marginBottom: 16 }} aria-label="Minha foto">
+        <EditorFoto
+          nome={eu.socio.nome}
+          foto={eu.socio.foto}
+          enviar={(b) => api.enviarArquivo('/associado/foto', b, 'foto.jpg', { metodo: 'PUT' })}
+          remover={() => api.del('/associado/foto')}
+          aoMudar={aoMudar}
+        />
+      </section>
       <FormSocio valor={d} onChange={setD} modo="proprio" />
       <button className="btn block" style={{ marginTop: 12 }} disabled={ocupado} onClick={() => rodar(() => api.put('/associado/me', d), 'Dados atualizados.').then((ok) => ok && aoMudar())}>
         Salvar meus dados
@@ -47,9 +59,14 @@ export function MeusDados({ eu, aoMudar, aoSair }: { eu: Eu; aoMudar: () => void
           Trocar senha
         </button>
       </form>
-      <p className="muted small center" style={{ marginTop: 16 }}>
-        Documentos e laudos: envie em PDF para {eu.associacao.email}
-      </p>
+      <div style={{ marginTop: 16 }}>
+        <Documentos
+          explicacao="Envie laudos e documentos para a diretoria: tire uma foto pelo celular ou escolha um PDF. Só você e a diretoria da UPPA veem."
+          carregar={() => api.get<Documento[]>('/associado/documentos')}
+          enviar={(b, nome, tipo, descricao) => api.enviarArquivo('/associado/documentos', b, nome, { cabecalhos: { 'X-Tipo-Documento': tipo, 'X-Descricao': descricao } })}
+          remover={(id) => api.del(`/associado/documentos/${id}`)}
+        />
+      </div>
       <div style={{ marginTop: 16 }}>
         <PainelAcessibilidade />
         <SobreVersao />

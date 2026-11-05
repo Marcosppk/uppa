@@ -37,3 +37,9 @@
 .entrar { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
 .entrar .card { width: min(420px, 100%); padding: 28px; }
 .entrar .marca { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 18px; text-align: center; }
+
+/* No celular, o menu de baixo rola de lado (são 8 itens). */
+@media (max-width: 899px) {
+  .tabbar { overflow-x: auto; scrollbar-width: none; }
+  .tabbar a { flex: 1 0 74px; }
+}

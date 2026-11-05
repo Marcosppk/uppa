@@ -235,3 +235,52 @@ main:focus { outline: none; }
 :root[data-movimento='reduzido'] *::before, :root[data-movimento='reduzido'] *::after {
   animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important;
 }
+
+/* ---------------- 1.7 ---------------- */
+/* Cor da campanha do mês (o alto contraste continua mandando) */
+:root[data-campanha]:not([data-contraste='alto']) { --brand: var(--campanha-tinta); --brand-2: color-mix(in srgb, var(--campanha-tinta) 12%, #ffffff); }
+@media (prefers-color-scheme: dark) {
+  :root[data-campanha]:not([data-contraste='alto']):not([data-theme='light']) { --brand: var(--campanha-claro); --brand-2: color-mix(in srgb, var(--campanha-claro) 18%, #0f1720); }
+}
+.faixa-campanha {
+  display: flex; gap: 12px; align-items: center; padding: 12px 16px; margin-bottom: 12px; border-radius: var(--radius);
+  background: color-mix(in srgb, var(--campanha, var(--brand)) 16%, var(--surface)); border: 1px solid color-mix(in srgb, var(--campanha, var(--brand)) 45%, var(--line));
+}
+.faixa-campanha .laco { font-size: 1.8rem; line-height: 1; }
+.faixa-campanha div { display: grid; gap: 2px; }
+.faixa-campanha b { color: var(--brand); }
+.selo-campanha { display: flex; gap: 6px; align-items: center; font-size: .85rem; color: var(--brand); font-weight: 600; padding: 0 8px; }
+
+/* Foto */
+.avatar-foto { border-radius: 50%; object-fit: cover; flex: none; background: var(--surface-2); border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--line); }
+.avatar.grande { width: 96px; height: 96px; font-size: 2rem; }
+.editor-foto { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.carteira .foto-c { width: 76px; height: 76px; border-radius: 14px; object-fit: cover; border: 3px solid rgb(255 255 255 / 85%); background: #fff; }
+.carteira .meio-c { display: flex; gap: 14px; align-items: end; }
+
+/* Documentos */
+.doc-miniatura { width: 56px; height: 56px; border-radius: 10px; overflow: hidden; display: grid; place-items: center; background: var(--surface-2); border: 1px solid var(--line); font-size: 1.6rem; flex: none; text-decoration: none; }
+.doc-miniatura img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Calendário */
+.calendario { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 12px; }
+.cal-semana { text-align: center; font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; padding-bottom: 4px; }
+.cal-dia { display: grid; justify-items: center; align-content: start; gap: 2px; min-height: 48px; padding: 6px 2px; border-radius: 10px; border: 1px solid transparent; background: none; cursor: pointer; color: var(--ink); font: inherit; }
+.cal-dia:hover { background: var(--surface-2); }
+.cal-dia.hoje > span:first-child { background: var(--brand); color: var(--brand-ink); border-radius: 999px; min-width: 28px; font-weight: 700; }
+.cal-dia.escolhido { border-color: var(--brand); background: var(--brand-2); }
+.cal-marcas { display: flex; gap: 2px; align-items: center; min-height: 16px; }
+.cal-marcas small { font-size: .75rem; line-height: 1; }
+.cal-ponto { width: 7px; height: 7px; border-radius: 50%; background: var(--brand); }
+.card.evento + .card, .card.cal-data + .card { margin-top: 0; }
+
+/* Conversa */
+.conversa { display: grid; gap: 10px; max-height: 60vh; overflow-y: auto; padding: 4px; }
+.balao { max-width: 85%; padding: 10px 14px; border-radius: 16px; display: grid; gap: 4px; }
+.balao.minha { justify-self: end; background: var(--brand-2); border-bottom-right-radius: 4px; }
+.balao.outra { justify-self: start; background: var(--surface); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+.balao-autor { font-size: .78rem; font-weight: 700; color: var(--brand); }
+.balao-hora { font-size: .72rem; color: var(--muted); justify-self: end; }
+.conversa-escrever { align-items: flex-end; gap: 8px; flex-wrap: nowrap; }
+.conversa-escrever textarea { min-height: 52px; }
+.selo-numero { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--bad); color: #fff; font-size: .75rem; font-weight: 700; }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, TagMensalidade, Icone, useAcao, useToast, Campo } from '@shared/ui';
 import { dinheiro, mesExtenso, dataBr } from '@shared/formato';
 import type { Mensalidade } from '@shared/tipos';
@@ -9,6 +9,21 @@ export function MinhasMensalidades({ eu, aoMudar }: { eu: Eu; aoMudar: () => voi
   const [pagar, setPagar] = useState<Mensalidade | null>(null);
   const lista = eu.mensalidades;
   const abertas = lista.filter((m) => m.status === 'pendente');
+  const toast = useToast();
+  // Voltou do Mercado Pago: confere se o cartão foi aprovado (a baixa é automática).
+  const foiAoCartao = abertas.some((m) => m.mp_preferencia);
+  useEffect(() => {
+    if (!foiAoCartao) return;
+    api
+      .post<{ pagas: number }>('/associado/mensalidades/conferir-cartao')
+      .then((r) => {
+        if (r.pagas > 0) {
+          toast(r.pagas === 1 ? 'Pagamento com cartão confirmado. Obrigado!' : `${r.pagas} pagamentos com cartão confirmados. Obrigado!`);
+          aoMudar();
+        }
+      })
+      .catch(() => {});
+  }, [foiAoCartao]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
@@ -105,7 +120,59 @@ function Pagar({ m, eu, aoFechar, aoInformar }: { m: Mensalidade; eu: Eu; aoFech
         <button className="btn ok block" disabled={ocupado} onClick={() => rodar(() => api.post(`/associado/mensalidades/${m.id}/informar`, { forma: 'pix', obs }), 'Pronto! A tesouraria vai confirmar.').then((ok) => ok && aoInformar())}>
           <Icone nome="check" /> Já paguei
         </button>
+        {m.cartao && (
+          <>
+            <p className="muted small center" style={{ margin: '8px 0 0' }}>
+              ou
+            </p>
+            <PagarCartao m={m} />
+          </>
+        )}
       </div>
     </Modal>
+  );
+}
+
+/** Cartão de crédito pelo Mercado Pago: o cartão é digitado no site do Mercado Pago. A taxa do cartão é do sócio. */
+function PagarCartao({ m }: { m: Mensalidade }) {
+  const { ocupado, rodar } = useAcao();
+  const c = m.cartao!;
+  return (
+    <div className="card stack" style={{ background: 'var(--surface-2)' }}>
+      <b>💳 Pagar com cartão</b>
+      <table className="t small">
+        <tbody>
+          <tr>
+            <td>Mensalidade</td>
+            <td className="r num">{dinheiro(m.valor)}</td>
+          </tr>
+          <tr>
+            <td>Taxa do cartão (paga por você)</td>
+            <td className="r num">{dinheiro(c.taxa)}</td>
+          </tr>
+          <tr>
+            <td>
+              <b>Total no cartão</b>
+            </td>
+            <td className="r num">
+              <b>{dinheiro(c.total)}</b>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <button
+        className="btn block"
+        disabled={ocupado}
+        onClick={() =>
+          rodar(async () => {
+            const r = await api.post<{ url: string }>(`/associado/mensalidades/${m.id}/cartao`);
+            location.href = r.url;
+          })
+        }
+      >
+        {ocupado ? 'Abrindo o Mercado Pago…' : `Pagar ${dinheiro(c.total)} no cartão`}
+      </button>
+      <span className="muted small">Você vai para o site seguro do Mercado Pago e volta para o app depois. A baixa da mensalidade é automática.</span>
+    </div>
   );
 }

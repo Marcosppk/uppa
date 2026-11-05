@@ -11,9 +11,13 @@ import { MinhasMensalidades } from './MinhasMensalidades';
 import { MeusDados } from './MeusDados';
 import { Sala, Jogo } from './acolhimento/Sala';
 import { AvisoNovaVersao } from '@shared/versao';
+import { aplicarCampanha } from '@shared/campanhas';
+import { Agenda } from './Agenda';
+import { Mensagens } from './Mensagens';
 import { aplicarPreferencias, PularParaConteudo } from '@shared/acessibilidade';
 
 aplicarPreferencias();
+aplicarCampanha(true);
 
 const MENU = [
   { r: '/', ico: 'inicio', t: 'Início' },
@@ -33,7 +37,10 @@ function App() {
     setErro('');
     return api
       .get<Eu>('/associado/me')
-      .then(setEu)
+      .then((e) => {
+        aplicarCampanha(e.associacao.campanhas);
+        setEu(e);
+      })
       .catch((e) => {
         // Sessão do primeiro acesso sem a senha trocada: volta para o login.
         if (e.status === 403) {
@@ -102,6 +109,8 @@ function App() {
   if (base === 'carteirinha') pagina = <Carteirinha eu={eu} />;
   else if (base === 'mensalidades') pagina = <MinhasMensalidades eu={eu} aoMudar={carregar} />;
   else if (base === 'acolhimento') pagina = <Sala />;
+  else if (base === 'agenda') pagina = <Agenda />;
+  else if (base === 'mensagens') pagina = <Mensagens aoLer={carregar} />;
   else if (base === 'dados') pagina = <MeusDados eu={eu} aoMudar={carregar} aoSair={sair} />;
   else pagina = <Inicio eu={eu} />;
 

@@ -1,5 +1,13 @@
 # Novidades dos apps da UPPA
 
+## 1.7.0 — 05/11/2026
+- Foto do sócio: no perfil, na carteirinha e na verificação pública da carteirinha (o sócio coloca em Meus dados; a equipe, na ficha).
+- Laudos e documentos com foto (direto da câmera) ou PDF, em Meus dados e na ficha do sócio.
+- Cores das campanhas de conscientização de cada mês (Abril Azul, Setembro Verde, Outubro Rosa…), com faixa no app dos sócios.
+- Pagamento da mensalidade com cartão pelo Mercado Pago, com a taxa do cartão paga pelo sócio e baixa automática.
+- Calendário de eventos, com as datas da causa autista e os aniversários da família.
+- Mensagens privadas entre a diretoria e cada sócio.
+
 ## 1.6.0 — 05/11/2026
 - Aviso de nova inscrição também por SMS (Zenvia ou Twilio), além de e-mail e WhatsApp.
 

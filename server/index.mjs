@@ -11,6 +11,10 @@ import { importarCsv, importarDeLink } from './importar.mjs';
 import { anexosDoAviso, salvarAnexo, enviarAnexo, MAX_VIDEO } from './anexos.mjs';
 import { listarCopias, fazerCopia, caminhoCopia, iniciarCopias, PASTA as PASTA_COPIAS } from './backup.mjs';
 import { lerNotificacoes, gravarNotificacoes, avisarNovaInscricao, testarNotificacoes } from './notificar.mjs';
+import { rotasArquivos, fotoDe, fotosDe } from './arquivos.mjs';
+import { rotasMercadoPago, cartaoParaSocio } from './mercadopago.mjs';
+import { rotasAgenda } from './agenda.mjs';
+import { rotasMensagens, naoLidasDoSocio, naoLidasDaDiretoria } from './mensagens.mjs';
 import { comemoracoesDoSocio, aniversariantes, datasDaCausa, iniciarRotinaDoDia } from './datas.mjs';
 import { CATEGORIAS, RENDAS, rotulo } from '../shared/opcoes.js';
 
@@ -40,7 +44,7 @@ app.use('/api', (req, res, next) => {
   if (origem) {
     res.setHeader('Access-Control-Allow-Origin', origem);
     res.setHeader('Vary', 'Origin');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Nome-Arquivo');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Nome-Arquivo, X-Tipo-Documento, X-Descricao');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   }
   if (req.method === 'OPTIONS') return res.sendStatus(204);
@@ -155,7 +159,7 @@ app.get('/api/saude', (_req, res) => res.json({ ok: true, versao: VERSAO }));
 
 app.get('/api/publico/config', rota(() => {
   const c = lerConfig();
-  return { nome_associacao: c.nome_associacao, email_associacao: c.email_associacao, valor_ate_2sm: Number(c.valor_ate_2sm), valor_acima_2sm: Number(c.valor_acima_2sm) };
+  return { nome_associacao: c.nome_associacao, email_associacao: c.email_associacao, valor_ate_2sm: Number(c.valor_ate_2sm), valor_acima_2sm: Number(c.valor_acima_2sm), campanhas: c.campanhas !== '0' };
 }));
 
 app.post('/api/publico/inscricao', rota((req) => {
@@ -213,7 +217,8 @@ app.get('/api/publico/verificar/:codigo', rota((req) => {
   const ativos = db.prepare("SELECT id, nome, matricula, categoria, status FROM socios WHERE matricula IS NOT NULL").all();
   const s = ativos.find((x) => codigoCarteirinha(x, segredo) === req.params.codigo);
   if (!s) throw erro(404, 'Carteirinha não encontrada.');
-  return { nome: s.nome, matricula: s.matricula, categoria: rotulo(CATEGORIAS, s.categoria), ativo: s.status === 'ativo' };
+  // A foto ajuda quem confere a carteirinha a ver que é a mesma pessoa.
+  return { nome: s.nome, matricula: s.matricula, categoria: rotulo(CATEGORIAS, s.categoria), ativo: s.status === 'ativo', foto: fotoDe(s.id) };
 }));
 
 // =====================================================================
@@ -240,12 +245,14 @@ assoc.get('/me', rota((req) => {
   if (socio.status === 'ativo') gerarMensalidadesDoSocio(socio);
   const mensalidades = db.prepare('SELECT * FROM mensalidades WHERE socio_id = ? ORDER BY competencia DESC').all(socio.id);
   const c = lerConfig();
+  socio.foto = fotoDe(socio.id);
   return {
     socio,
     carteirinha: socio.matricula ? codigoCarteirinha(socio, segredo) : null,
-    mensalidades: mensalidades.map((m) => ({ ...m, pix: m.status === 'pendente' ? pagamentoPix(m, socio) : null })),
-    associacao: { nome: c.nome_associacao, email: c.email_associacao, pix_chave: c.pix_chave, pix_nome: c.pix_nome },
+    mensalidades: mensalidades.map((m) => ({ ...m, pix: m.status === 'pendente' ? pagamentoPix(m, socio) : null, cartao: cartaoParaSocio(m) })),
+    associacao: { nome: c.nome_associacao, email: c.email_associacao, pix_chave: c.pix_chave, pix_nome: c.pix_nome, campanhas: c.campanhas !== '0' },
     comemoracoes: comemoracoesDoSocio(socio),
+    nao_lidas: naoLidasDoSocio(socio.id),
   };
 }));
 
@@ -348,7 +355,7 @@ adm.get('/painel', rota(() => {
     FROM lancamentos WHERE data >= date(?, '-5 months') GROUP BY mes ORDER BY mes`).all(`${comp}-01`);
   const categorias = db.prepare("SELECT categoria, COUNT(*) n FROM socios WHERE status = 'ativo' GROUP BY categoria").all();
   const informadas = db.prepare("SELECT COUNT(*) n FROM mensalidades WHERE status = 'informada'").get().n;
-  return { competencia: comp, socios: contagem, mes, saldo: caixa.saldo, meses, categorias, informadas, causa: datasDaCausa().filter((d) => d.hoje) };
+  return { competencia: comp, socios: contagem, mes, saldo: caixa.saldo, meses, categorias, informadas, causa: datasDaCausa().filter((d) => d.hoje), mensagens: naoLidasDaDiretoria() };
 }));
 
 // Aniversariantes (sócios e pessoas autistas) de hoje até `dias` à frente, com a mensagem pronta para o WhatsApp.
@@ -367,13 +374,16 @@ adm.get('/socios', rota((req) => {
     WHERE (? = '' OR s.status = ?) AND (? = '' OR s.categoria = ?)
       AND (lower(s.nome) LIKE ? OR lower(COALESCE(s.email,'')) LIKE ? OR (? <> '' AND (s.cpf LIKE ? OR CAST(s.matricula AS TEXT) = ?)))
     ORDER BY s.status = 'pendente' DESC, s.nome COLLATE NOCASE`).all(status, status, categoria, categoria, termo, termo, digitos, `%${digitos}%`, digitos);
-  return linhas.map((l) => publicar(l, { comAutistas: false }));
+  const fotos = fotosDe(linhas.map((l) => l.id));
+  return linhas.map((l) => ({ ...publicar(l, { comAutistas: false }), foto: fotos.get(l.id) ?? null }));
 }));
 
 adm.get('/socios/:id', rota((req) => {
   const s = buscarSocio(req.params.id);
   if (!s) throw erro(404, 'Sócio não encontrado.');
   s.mensalidades = db.prepare('SELECT * FROM mensalidades WHERE socio_id = ? ORDER BY competencia DESC').all(s.id);
+  s.foto = fotoDe(s.id);
+  s.n_documentos = db.prepare('SELECT COUNT(*) n FROM socio_documentos WHERE socio_id = ?').get(s.id).n;
   return s;
 }));
 
@@ -483,7 +493,7 @@ adm.post('/avisos/:id/anexos', express.raw({ type: () => true, limit: MAX_VIDEO 
 adm.delete('/avisos/:id/anexos/:anexo', rota((req) => { db.prepare('DELETE FROM aviso_anexos WHERE id = ? AND aviso_id = ?').run(req.params.anexo, req.params.id); }));
 
 // ---- Configurações e usuários ----
-const CHAVES_CONFIG = ['nome_associacao', 'email_associacao', 'valor_ate_2sm', 'valor_acima_2sm', 'pix_chave', 'pix_nome', 'pix_cidade'];
+const CHAVES_CONFIG = ['nome_associacao', 'email_associacao', 'valor_ate_2sm', 'valor_acima_2sm', 'pix_chave', 'pix_nome', 'pix_cidade', 'campanhas'];
 adm.get('/config', rota(() => Object.fromEntries(Object.entries(lerConfig()).filter(([k]) => CHAVES_CONFIG.includes(k)))));
 adm.put('/config', soAdmin, rota((req) => {
   const up = db.prepare('INSERT INTO config (chave, valor) VALUES (?, ?) ON CONFLICT (chave) DO UPDATE SET valor = excluded.valor');
@@ -530,6 +540,12 @@ adm.get('/exportar/socios.csv', rota((_req, res) => {
   res.setHeader('Content-Disposition', 'attachment; filename="socios-uppa.csv"');
   res.send('﻿' + [cab.map(esc).join(','), ...corpo].join('\r\n'));
 }));
+
+// ---- 1.7: foto e documentos, cartão (Mercado Pago), agenda e mensagens privadas ----
+rotasArquivos({ app, assoc, adm, rota, segredo });
+rotasMercadoPago({ app, assoc, adm, soAdmin, rota, darBaixa });
+rotasAgenda({ assoc, adm, rota });
+rotasMensagens({ assoc, adm, rota });
 
 // ---- Aviso de nova inscrição por e-mail e WhatsApp (só administradores) ----
 adm.get('/notificacoes', soAdmin, rota(() => lerNotificacoes()));

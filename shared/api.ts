@@ -70,7 +70,8 @@ export function criarApi(chaveToken: string, aoExpirar: () => void) {
     put: <T>(c: string, b: unknown) => pedir<T>('PUT', c, b),
     del: <T>(c: string) => pedir<T>('DELETE', c),
     /** Envia um arquivo (o nome segue no cabeçalho X-Nome-Arquivo). */
-    enviarArquivo: <T>(c: string, arquivo: Blob, nome: string) => pedir<T>('POST', c, arquivo, { 'X-Nome-Arquivo': encodeURIComponent(nome) }),
+    enviarArquivo: <T>(c: string, arquivo: Blob, nome: string, { metodo = 'POST', cabecalhos = {} }: { metodo?: string; cabecalhos?: Record<string, string> } = {}) =>
+      pedir<T>(metodo, c, arquivo, { 'X-Nome-Arquivo': encodeURIComponent(nome), ...Object.fromEntries(Object.entries(cabecalhos).map(([k, v]) => [k, encodeURIComponent(v)])) }),
     /** Baixa um arquivo autenticado (ex.: exportação CSV). */
     async baixar(caminho: string, nome: string) {
       const resp = await fetch(`${BASE}/api${caminho}`, { headers: { Authorization: `Bearer ${lerToken()}` } });

@@ -150,6 +150,89 @@ Além disso:
 - As mensagens são anunciadas pelo leitor de tela.
 - Os botões só com ícone têm descrição.
 
+## Foto do sócio
+
+O sócio coloca a foto em **Meus dados → Adicionar foto**. Pode tirar na hora ou escolher da galeria. O app recorta a foto em quadrado e reduz o tamanho.
+
+A foto aparece:
+- no Início;
+- na **carteirinha**;
+- na página que abre ao ler o QR da carteirinha, para quem confere ver que é a mesma pessoa;
+- na lista de sócios do Financeiro.
+
+A equipe também pode colocar ou trocar a foto na ficha do sócio.
+
+## Laudos e documentos
+
+Em **Meus dados → Laudos e documentos**, o sócio:
+1. escolhe o tipo: laudo, identidade, comprovante de residência, comprovante de benefício ou outro;
+2. escreve uma descrição, se quiser;
+3. toca em **Tirar foto do documento** (abre a câmera) ou **Escolher foto ou PDF**.
+
+A diretoria vê, anexa e remove documentos na ficha do sócio, na aba **Documentos**. Quem enviou cada documento fica registrado.
+
+Os arquivos ficam no banco e entram nas cópias de segurança. Como têm dados de saúde, o link de cada documento só funciona por **15 minutos** e só é gerado para o próprio sócio ou para a equipe.
+
+## Campanhas do mês
+
+As cores dos apps seguem a campanha de conscientização do mês:
+
+| Mês | Campanha |
+|---|---|
+| Janeiro | Branco |
+| Fevereiro | Roxo |
+| Março | Lilás |
+| Abril | **Azul (autismo)** |
+| Maio | Laranja |
+| Junho | Vermelho |
+| Julho | Amarelo |
+| Agosto | Dourado |
+| Setembro | **Verde (inclusão da pessoa com deficiência)** |
+| Outubro | Rosa |
+| Novembro | Azul |
+| Dezembro | Vermelho |
+
+O app dos sócios mostra uma faixa com o laço e o tema do mês.
+
+O alto contraste da acessibilidade tem prioridade sobre a cor da campanha. Para desligar as cores: Ajustes → Associação → **Cores das campanhas do mês**.
+
+## Cartão de crédito (Mercado Pago)
+
+**Configuração:** Ajustes → **Pagamento com cartão** (só administradores):
+1. Cole o **Access Token de produção** da conta Mercado Pago da associação (começa com `APP_USR-`). O sistema confere o token com o Mercado Pago antes de guardar.
+2. Informe a **taxa do cartão** do seu plano, em porcentagem, e uma taxa fixa, se o plano tiver.
+3. Marque **Oferecer pagamento com cartão**.
+
+**A taxa é paga pelo sócio.** O valor no cartão é calculado para que, descontada a taxa, a associação receba a mensalidade inteira. Com taxa de 4,98%:
+- mensalidade de R$ 10,00 → R$ 10,53 no cartão;
+- mensalidade de R$ 20,00 → R$ 21,05 no cartão.
+
+**Pagamento:** o sócio toca em **Pagar → Pagar no cartão**. O pagamento é feito no site seguro do Mercado Pago, à vista, e o número do cartão nunca passa pelo servidor da UPPA.
+
+**Baixa automática:** a mensalidade é baixada como "Cartão (Mercado Pago)" e entra no caixa com o valor da mensalidade. Isso acontece de dois jeitos:
+- pelo aviso que o Mercado Pago manda para `/api/publico/mercadopago/aviso`;
+- quando o sócio volta para o app.
+
+Nos dois casos o servidor **consulta o pagamento no Mercado Pago** antes de dar baixa, então um aviso falso não paga nada.
+
+## Calendário
+
+No Financeiro, o menu **Agenda** tem reuniões, oficinas e eventos, com data, horário, local e descrição. Os eventos publicados aparecem:
+- no **calendário do app dos sócios**, junto com o 2 de abril, o 18 de junho e os aniversários da família;
+- em **Próximos eventos**, no Início.
+
+Cada evento tem o botão **Adicionar à minha agenda**, que gera um arquivo .ics para a agenda do celular.
+
+## Mensagens privadas
+
+A diretoria escreve para um sócio na ficha dele, aba **Mensagens**, ou pelo menu **Mensagens**, que tem a caixa de conversas e a busca de sócio.
+
+No app do sócio:
+- o Início mostra o aviso de mensagem nova, com contador;
+- o sócio lê e responde em **Mensagens**.
+
+Respostas não lidas aparecem no Painel do Financeiro. Cada conversa só é vista pelo sócio e pela equipe.
+
 ## Sala de acolhimento
 
 No app Associados, aba **Acolhimento**, há um cantinho calmo com 7 atividades:

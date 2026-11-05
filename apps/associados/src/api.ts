@@ -7,7 +7,9 @@ export interface Eu {
   socio: Socio;
   carteirinha: string | null;
   mensalidades: Mensalidade[];
-  associacao: { nome: string; email: string; pix_chave: string; pix_nome: string };
+  associacao: { nome: string; email: string; pix_chave: string; pix_nome: string; campanhas: boolean };
+  /** Mensagens da diretoria ainda não lidas. */
+  nao_lidas: number;
   /** Aniversários da família e datas da causa autista que caem hoje. */
   comemoracoes: Comemoracao[];
 }

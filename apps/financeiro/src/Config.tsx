@@ -14,7 +14,7 @@ interface Resumo {
   avisos: string[];
 }
 
-export function Config({ usuario, aoSair }: { usuario: Usuario; aoSair: () => void }) {
+export function Config({ usuario, aoSair, aoMudarCampanha }: { usuario: Usuario; aoSair: () => void; aoMudarCampanha?: () => void }) {
   const admin = usuario.papel === 'admin';
   return (
     <>
@@ -27,7 +27,8 @@ export function Config({ usuario, aoSair }: { usuario: Usuario; aoSair: () => vo
       {admin && <Importar />}
       {admin && <AvisosInscricao />}
       {admin && <CopiasSeguranca />}
-      <Associacao admin={admin} />
+      <Associacao admin={admin} aoSalvar={aoMudarCampanha} />
+      {admin && <PagamentoCartao />}
       <Usuarios admin={admin} eu={usuario} />
       <MinhaSenha />
       <PainelAcessibilidade />
@@ -331,7 +332,60 @@ function CopiasSeguranca() {
   );
 }
 
-function Associacao({ admin }: { admin: boolean }) {
+/** Cartão de crédito pelo Mercado Pago, com a taxa repassada ao sócio. */
+function PagamentoCartao() {
+  const { dados, erro, recarregar } = useDados(() => api.get<{ ativo: boolean; tem_token: boolean; taxa_pct: number; taxa_fixa: number }>('/admin/cartao'));
+  const [f, setF] = useState<{ ativo: boolean; token: string; taxa_pct: string; taxa_fixa: string } | null>(null);
+  const { ocupado, rodar } = useAcao();
+  useEffect(() => {
+    if (dados) setF({ ativo: dados.ativo, token: '', taxa_pct: String(dados.taxa_pct).replace('.', ','), taxa_fixa: String(dados.taxa_fixa).replace('.', ',') });
+  }, [dados]);
+  if (!f || !dados) return <Estado erro={erro} />;
+  const pct = Number(f.taxa_pct.replace(',', '.')) || 0;
+  const fixa = Number(f.taxa_fixa.replace(',', '.')) || 0;
+  const exemplo = (v: number) => (Math.ceil(((v + fixa) / (1 - pct / 100)) * 100 - 1e-6) / 100).toFixed(2).replace('.', ',');
+  return (
+    <form
+      className="card stack"
+      onSubmit={(e) => {
+        e.preventDefault();
+        rodar(() => api.put('/admin/cartao', f), 'Pagamento com cartão salvo.').then((ok) => ok && recarregar());
+      }}
+    >
+      <h2>Pagamento com cartão (Mercado Pago)</h2>
+      <p className="muted" style={{ margin: 0 }}>
+        O sócio paga a mensalidade com cartão no site seguro do Mercado Pago e a baixa é automática. A <b>taxa do cartão é paga pelo sócio</b>: o valor é aumentado para que, descontada a taxa, a associação receba a mensalidade inteira.
+      </p>
+      <Campo rotulo="Access Token de produção do Mercado Pago" ajuda={dados.tem_token ? 'Já guardado. Deixe em branco para manter.' : 'No Mercado Pago: Seu negócio → Configurações → Credenciais (começa com APP_USR-).'}>
+        <input className="input" type="password" value={f.token} onChange={(e) => setF({ ...f, token: e.target.value })} placeholder={dados.tem_token ? '•••• guardado' : 'APP_USR-…'} autoComplete="new-password" />
+      </Campo>
+      <div className="grid2">
+        <Campo rotulo="Taxa do cartão (%)" ajuda="A que o Mercado Pago cobra no seu plano (ex.: 4,98 para receber na hora).">
+          <input className="input" inputMode="decimal" value={f.taxa_pct} onChange={(e) => setF({ ...f, taxa_pct: e.target.value })} />
+        </Campo>
+        <Campo rotulo="Taxa fixa por pagamento (R$)" ajuda="Se o seu plano tiver; senão, deixe 0.">
+          <input className="input" inputMode="decimal" value={f.taxa_fixa} onChange={(e) => setF({ ...f, taxa_fixa: e.target.value })} />
+        </Campo>
+      </div>
+      <p className="muted small" style={{ margin: 0 }}>
+        Exemplo: mensalidade de R$ 10,00 → o sócio paga <b>R$ {exemplo(10)}</b> no cartão; de R$ 20,00 → <b>R$ {exemplo(20)}</b>.
+      </p>
+      <label className="check">
+        <input type="checkbox" checked={f.ativo} onChange={(e) => setF({ ...f, ativo: e.target.checked })} />
+        <span>
+          <b>Oferecer pagamento com cartão</b> no app dos sócios
+        </span>
+      </label>
+      <div>
+        <button className="btn" disabled={ocupado}>
+          {ocupado ? 'Conferindo com o Mercado Pago…' : 'Salvar'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function Associacao({ admin, aoSalvar }: { admin: boolean; aoSalvar?: () => void }) {
   const { dados, erro } = useDados(() => api.get<Record<string, string>>('/admin/config'));
   const [f, setF] = useState<Record<string, string>>({});
   const { ocupado, rodar } = useAcao();
@@ -360,9 +414,14 @@ function Associacao({ admin }: { admin: boolean }) {
         {campo('pix_nome', 'Nome do recebedor')}
         {campo('pix_cidade', 'Cidade')}
       </div>
+      <h3>Cores das campanhas do mês</h3>
+      <label className="check">
+        <input type="checkbox" checked={f.campanhas !== '0'} onChange={(e) => setF({ ...f, campanhas: e.target.checked ? '1' : '0' })} disabled={!admin} />
+        <span>Mudar a cor dos apps conforme a campanha de conscientização do mês (Abril Azul, Setembro Verde, Outubro Rosa…) e mostrar a faixa da campanha no app dos sócios.</span>
+      </label>
       {admin && (
         <div>
-          <button className="btn" disabled={ocupado} onClick={() => rodar(() => api.put('/admin/config', f), 'Configurações salvas.')}>
+          <button className="btn" disabled={ocupado} onClick={() => rodar(() => api.put('/admin/config', f), 'Configurações salvas.').then((ok) => ok && aoSalvar?.())}>
             Salvar
           </button>
         </div>
