@@ -71,7 +71,7 @@ Os anexos ficam guardados no banco (`uppa.db`), então entram na cópia de segur
 - **Vídeos** (MP4, MOV e WEBM, até 60 MB) podem ir como anexo e tocam no mural, sem precisar baixar antes.
 - No Associados, cada aviso tem o botão **🔊 Ouvir o aviso**, que lê o texto em voz alta com a voz do celular.
 
-## Aviso de nova inscrição (e-mail e WhatsApp)
+## Aviso de nova inscrição (e-mail, WhatsApp e SMS)
 
 Em Financeiro → Ajustes → **Aviso de nova inscrição** (só administradores):
 
@@ -80,9 +80,13 @@ Em Financeiro → Ajustes → **Aviso de nova inscrição** (só administradores
   1. Cada pessoa que vai receber manda, do próprio WhatsApp, a mensagem de ativação indicada no site.
   2. A pessoa recebe uma chave (apikey).
   3. Cadastre o número e a chave em Ajustes.
+- **SMS.** SMS é **pago por mensagem**, então precisa de uma conta da associação num serviço de SMS. Escolha um dos dois:
+  - [Zenvia](https://www.zenvia.com), brasileira, cobra em reais. Precisa do **token da API** (painel → Integrações) e do **remetente** cadastrado.
+  - [Twilio](https://www.twilio.com). Precisa do **Account SID** (começa com AC), do **Auth Token** e do **número Twilio** que envia.
+  Coloque os celulares que recebem, separados por vírgula. O texto vai sem acentos para caber num SMS só, por exemplo: "UPPA: nova inscricao de Fulano pelo app. Autorize no UPPA Financeiro: …".
 - **Enviar teste** confere se está tudo certo e mostra o resultado de cada canal.
 - **O que vai na mensagem:** só o nome, a categoria, quem convidou e o link para autorizar. Nada de CPF ou de dados de saúde.
-- **Onde ficam as credenciais:** a senha do Gmail e as chaves ficam guardadas no banco e nunca aparecem na tela.
+- **Onde ficam as credenciais:** a senha do Gmail, as chaves do WhatsApp e o token do SMS ficam guardados no banco e nunca aparecem na tela.
 
 ## Cópias de segurança
 

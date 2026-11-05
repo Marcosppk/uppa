@@ -116,13 +116,18 @@ interface Notificacoes {
   gmail: string;
   tem_senha_gmail: boolean;
   whats: { numero: string; tem_chave?: boolean; chave?: string }[];
+  sms_provedor: '' | 'zenvia' | 'twilio';
+  sms_numeros: string;
+  sms_conta: string;
+  sms_de: string;
+  tem_token_sms: boolean;
   ultimo: { em: string; assunto: string; resultados: { canal: string; ok: boolean; erro?: string }[] } | null;
 }
 
-/** Quem recebe o aviso de nova inscrição pelo app, por e-mail e WhatsApp. */
+/** Quem recebe o aviso de nova inscrição pelo app, por e-mail, WhatsApp e SMS. */
 function AvisosInscricao() {
   const { dados, erro, recarregar } = useDados(() => api.get<Notificacoes>('/admin/notificacoes'));
-  const [f, setF] = useState<(Notificacoes & { senha_gmail?: string }) | null>(null);
+  const [f, setF] = useState<(Notificacoes & { senha_gmail?: string; sms_token?: string }) | null>(null);
   const { ocupado, rodar } = useAcao();
   const [teste, setTeste] = useState<Notificacoes['ultimo']>(null);
   useEffect(() => {
@@ -141,7 +146,7 @@ function AvisosInscricao() {
     >
       <h2>Aviso de nova inscrição</h2>
       <p className="muted" style={{ margin: 0 }}>
-        Quando alguém se inscrever pelo app UPPA Associados, chega uma mensagem por e-mail e/ou WhatsApp com o nome, a categoria e o link para autorizar. Nenhum CPF ou dado de saúde vai na mensagem.
+        Quando alguém se inscrever pelo app UPPA Associados, chega uma mensagem por e-mail, WhatsApp e/ou SMS com o nome, a categoria e o link para autorizar. Nenhum CPF ou dado de saúde vai na mensagem.
       </p>
 
       <h3>E-mail</h3>
@@ -177,6 +182,42 @@ function AvisosInscricao() {
       <button type="button" className="btn sec sm" style={{ justifySelf: 'start' }} onClick={() => setF({ ...f, whats: [...f.whats, { numero: '', chave: '' }] })}>
         <Icone nome="mais" /> Adicionar WhatsApp
       </button>
+
+      <h3>SMS</h3>
+      <p className="muted small" style={{ margin: 0 }}>
+        SMS é pago por mensagem, numa conta da associação num serviço de SMS: a <a href="https://www.zenvia.com" target="_blank" rel="noreferrer">Zenvia</a> (brasileira, cobra em reais) ou a{' '}
+        <a href="https://www.twilio.com" target="_blank" rel="noreferrer">Twilio</a>. O texto vai sem acentos para caber num SMS só.
+      </p>
+      <Campo rotulo="Serviço de SMS">
+        <select className="input" value={f.sms_provedor} onChange={(e) => setF({ ...f, sms_provedor: e.target.value as Notificacoes['sms_provedor'] })}>
+          <option value="">Não enviar SMS</option>
+          <option value="zenvia">Zenvia</option>
+          <option value="twilio">Twilio</option>
+        </select>
+      </Campo>
+      {f.sms_provedor && (
+        <>
+          <Campo rotulo="Celulares que recebem o SMS (com DDD)" ajuda="Pode colocar mais de um, separados por vírgula.">
+            <input className="input" inputMode="tel" value={f.sms_numeros} onChange={(e) => setF({ ...f, sms_numeros: e.target.value })} placeholder="95 99999-9999, 95 98888-8888" autoComplete="off" />
+          </Campo>
+          <div className="grid2">
+            {f.sms_provedor === 'twilio' && (
+              <Campo rotulo="Account SID (Twilio)">
+                <input className="input" value={f.sms_conta} onChange={(e) => setF({ ...f, sms_conta: e.target.value.trim() })} placeholder="AC…" autoComplete="off" />
+              </Campo>
+            )}
+            <Campo
+              rotulo={f.sms_provedor === 'twilio' ? 'Auth Token (Twilio)' : 'Token da API (Zenvia)'}
+              ajuda={f.tem_token_sms ? 'Já guardado. Deixe em branco para manter.' : f.sms_provedor === 'twilio' ? 'No painel da Twilio, em Account Info.' : 'No painel da Zenvia, em Integrações → Tokens e Webhooks.'}
+            >
+              <input className="input" type="password" value={f.sms_token ?? ''} onChange={(e) => setF({ ...f, sms_token: e.target.value })} placeholder={f.tem_token_sms ? '•••• guardado' : ''} autoComplete="new-password" />
+            </Campo>
+            <Campo rotulo={f.sms_provedor === 'twilio' ? 'Número Twilio que envia' : 'Remetente (Zenvia)'} ajuda={f.sms_provedor === 'twilio' ? 'Com + e o código do país, como aparece na Twilio.' : 'O nome/remetente de SMS cadastrado na sua conta Zenvia.'}>
+              <input className="input" value={f.sms_de} onChange={(e) => setF({ ...f, sms_de: e.target.value })} placeholder={f.sms_provedor === 'twilio' ? '+15551234567' : 'uppa-rr'} autoComplete="off" />
+            </Campo>
+          </div>
+        </>
+      )}
 
       <div className="row">
         <button className="btn" disabled={ocupado}>

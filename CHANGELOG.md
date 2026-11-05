@@ -1,5 +1,8 @@
 # Novidades dos apps da UPPA
 
+## 1.6.0 — 05/11/2026
+- Aviso de nova inscrição também por SMS (Zenvia ou Twilio), além de e-mail e WhatsApp.
+
 ## 1.5.1 — 05/11/2026
 - Biblioteca de envio de e-mail atualizada, com correções de segurança.
 
