@@ -96,3 +96,5 @@
 
 .ola .botao-mensagens { position: relative; align-self: flex-start; }
 .ola .botao-mensagens .selo-numero { position: absolute; top: -6px; right: -6px; }
+
+.spinner.pequeno { width: 18px; height: 18px; border-width: 2px; margin: 0; flex: none; }

@@ -1,5 +1,8 @@
 # Novidades dos apps da UPPA
 
+## 1.8.0 — 05/11/2026
+- Pix do Sicredi com baixa automática: cada mensalidade ganha um QR Pix próprio e, quando o sócio paga, a mensalidade fica paga sozinha (sem "Já paguei").
+
 ## 1.7.0 — 05/11/2026
 - Foto do sócio: no perfil, na carteirinha e na verificação pública da carteirinha (o sócio coloca em Meus dados; a equipe, na ficha).
 - Laudos e documentos com foto (direto da câmera) ou PDF, em Meus dados e na ficha do sócio.

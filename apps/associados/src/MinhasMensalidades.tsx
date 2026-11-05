@@ -81,6 +81,9 @@ function Pagar({ m, eu, aoFechar, aoInformar }: { m: Mensalidade; eu: Eu; aoFech
   const toast = useToast();
   const [obs, setObs] = useState('');
   const { ocupado, rodar } = useAcao();
+  // Pix do Sicredi: QR próprio da mensalidade e baixa automática. Se falhar, volta ao PIX comum + "Já paguei".
+  const [semAutomatico, setSemAutomatico] = useState(false);
+  const automatico = !!m.pix_auto && !semAutomatico;
 
   const copiar = async () => {
     try {
@@ -97,7 +100,9 @@ function Pagar({ m, eu, aoFechar, aoInformar }: { m: Mensalidade; eu: Eu; aoFech
         <p className="center" style={{ fontSize: '1.6rem', fontWeight: 700, margin: 0 }}>
           {dinheiro(m.valor)}
         </p>
-        {m.pix ? (
+        {automatico ? (
+          <PixAutomatico m={m} recebedor={eu.associacao.pix_nome} aoPagar={aoInformar} aoFalhar={() => setSemAutomatico(true)} />
+        ) : m.pix ? (
           <>
             {qr && <img className="qr" src={qr} alt="QR Code PIX" />}
             <p className="muted small center" style={{ margin: 0 }}>
@@ -113,13 +118,17 @@ function Pagar({ m, eu, aoFechar, aoInformar }: { m: Mensalidade; eu: Eu; aoFech
         ) : (
           <div className="alert">A tesouraria ainda não cadastrou a chave PIX no app. Combine o pagamento diretamente com a diretoria da UPPA.</div>
         )}
-        <hr style={{ border: 0, borderTop: '1px solid var(--line)', width: '100%' }} />
-        <Campo rotulo="Já pagou? Avise a tesouraria" ajuda="Opcional: escreva um recado (ex.: paguei pela conta da minha esposa).">
-          <input className="input" value={obs} onChange={(e) => setObs(e.target.value)} maxLength={300} />
-        </Campo>
-        <button className="btn ok block" disabled={ocupado} onClick={() => rodar(() => api.post(`/associado/mensalidades/${m.id}/informar`, { forma: 'pix', obs }), 'Pronto! A tesouraria vai confirmar.').then((ok) => ok && aoInformar())}>
-          <Icone nome="check" /> Já paguei
-        </button>
+        {!automatico && (
+          <>
+            <hr style={{ border: 0, borderTop: '1px solid var(--line)', width: '100%' }} />
+            <Campo rotulo="Já pagou? Avise a tesouraria" ajuda="Opcional: escreva um recado (ex.: paguei pela conta da minha esposa).">
+              <input className="input" value={obs} onChange={(e) => setObs(e.target.value)} maxLength={300} />
+            </Campo>
+            <button className="btn ok block" disabled={ocupado} onClick={() => rodar(() => api.post(`/associado/mensalidades/${m.id}/informar`, { forma: 'pix', obs }), 'Pronto! A tesouraria vai confirmar.').then((ok) => ok && aoInformar())}>
+              <Icone nome="check" /> Já paguei
+            </button>
+          </>
+        )}
         {m.cartao && (
           <>
             <p className="muted small center" style={{ margin: '8px 0 0' }}>
@@ -130,6 +139,85 @@ function Pagar({ m, eu, aoFechar, aoInformar }: { m: Mensalidade; eu: Eu; aoFech
         )}
       </div>
     </Modal>
+  );
+}
+
+/** Pix do Sicredi: gera a cobrança da mensalidade e fica conferindo; quando o Pix cai, a mensalidade é baixada sozinha. */
+function PixAutomatico({ m, recebedor, aoPagar, aoFalhar }: { m: Mensalidade; recebedor: string; aoPagar: () => void; aoFalhar: () => void }) {
+  const [cob, setCob] = useState<{ copiaECola: string; expira: string } | null>(null);
+  const [paga, setPaga] = useState(false);
+  const qr = useQr(cob?.copiaECola ?? null);
+  const toast = useToast();
+
+  useEffect(() => {
+    let vivo = true;
+    api
+      .post<{ copiaECola: string; expira: string }>(`/associado/mensalidades/${m.id}/pix-sicredi`)
+      .then((c) => vivo && setCob(c))
+      .catch((e) => {
+        if (!vivo) return;
+        toast(`Não consegui gerar o Pix automático (${e.message}). Use o PIX abaixo e avise a tesouraria.`);
+        aoFalhar();
+      });
+    return () => {
+      vivo = false;
+    };
+  }, [m.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Confere a cada 6 segundos enquanto a tela está aberta.
+  useEffect(() => {
+    if (!cob || paga) return;
+    const t = setInterval(() => {
+      api
+        .get<{ paga: boolean }>(`/associado/mensalidades/${m.id}/pix-sicredi`)
+        .then((r) => {
+          if (r.paga) {
+            setPaga(true);
+            toast('Pix recebido! Mensalidade paga. Obrigado!');
+            setTimeout(aoPagar, 1800);
+          }
+        })
+        .catch(() => {});
+    }, 6000);
+    return () => clearInterval(t);
+  }, [cob, paga]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const copiar = async () => {
+    try {
+      await navigator.clipboard.writeText(cob!.copiaECola);
+      toast('Código Pix copiado. Cole no app do seu banco.');
+    } catch {
+      toast('Não consegui copiar. Selecione o código e copie manualmente.');
+    }
+  };
+
+  if (paga)
+    return (
+      <div className="alert ok center" role="status" style={{ fontSize: '1.1rem' }}>
+        ✅ <b>Pix recebido!</b> Sua mensalidade está paga.
+      </div>
+    );
+  if (!cob) return <div className="spinner" role="status" aria-label="Gerando o Pix" />;
+  return (
+    <>
+      {qr && <img className="qr" src={qr} alt="QR Code Pix da mensalidade" />}
+      <p className="muted small center" style={{ margin: 0 }}>
+        Abra o app do seu banco, escolha Pix e leia o QR Code — ou copie o código abaixo.
+        <br />
+        Recebedor: <b>{recebedor}</b> (Sicredi)
+      </p>
+      <div className="pix-code">{cob.copiaECola}</div>
+      <button className="btn sec block" onClick={copiar}>
+        <Icone nome="copiar" /> Copiar código Pix
+      </button>
+      <div className="alert info row" role="status" style={{ gap: 10 }}>
+        <span className="spinner pequeno" aria-hidden="true" />
+        <span className="sp">
+          <b>Baixa automática:</b> assim que o Pix cair, a mensalidade fica paga sozinha. Não precisa avisar a tesouraria.
+        </span>
+      </div>
+      <span className="muted small center">Código válido até {new Date(cob.expira).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}.</span>
+    </>
   );
 }
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useDados, Estado, Campo, useAcao, Icone } from '@shared/ui';
+import { useDados, Estado, Campo, useAcao, Icone, useToast } from '@shared/ui';
 import { api, type Usuario } from './api';
 import { PainelAcessibilidade } from '@shared/acessibilidade';
 import { SobreVersao } from '@shared/versao';
@@ -28,6 +28,7 @@ export function Config({ usuario, aoSair, aoMudarCampanha }: { usuario: Usuario;
       {admin && <AvisosInscricao />}
       {admin && <CopiasSeguranca />}
       <Associacao admin={admin} aoSalvar={aoMudarCampanha} />
+      {admin && <PixSicredi />}
       {admin && <PagamentoCartao />}
       <Usuarios admin={admin} eu={usuario} />
       <MinhaSenha />
@@ -329,6 +330,121 @@ function CopiasSeguranca() {
         </>
       )}
     </div>
+  );
+}
+
+/** Lê o arquivo de certificado/chave: texto PEM como está; certificado binário (DER) vira PEM. */
+async function lerPem(f: File, tipo: 'CERTIFICATE' | 'PRIVATE KEY') {
+  const bytes = new Uint8Array(await f.arrayBuffer());
+  const texto = new TextDecoder().decode(bytes);
+  if (texto.includes('-----BEGIN')) return texto.trim();
+  if (tipo === 'PRIVATE KEY') throw new Error('A chave privada precisa estar em PEM (o arquivo .key baixado do Portal do Sicredi).');
+  let bin = '';
+  bytes.forEach((b) => (bin += String.fromCharCode(b)));
+  return `-----BEGIN CERTIFICATE-----\n${btoa(bin).match(/.{1,64}/g)!.join('\n')}\n-----END CERTIFICATE-----`;
+}
+
+interface Sicredi {
+  ativo: boolean;
+  ambiente: 'producao' | 'homologacao';
+  url_homologacao: string;
+  client_id: string;
+  tem_secret: boolean;
+  tem_chave_privada: boolean;
+  certificado: { valido_ate: string; titular: string } | null;
+  chave: string;
+  expiracao_horas: number;
+}
+
+/** Pix do Sicredi com baixa automática (API Pix do Banco Central, com certificado mTLS). */
+function PixSicredi() {
+  const { dados, erro, recarregar } = useDados(() => api.get<Sicredi>('/admin/sicredi'));
+  const [f, setF] = useState<(Sicredi & { client_secret: string; certificado_novo: string; chave_privada: string }) | null>(null);
+  const { ocupado, rodar } = useAcao();
+  const toast = useToast();
+  useEffect(() => {
+    if (dados) setF({ ...dados, client_secret: '', certificado_novo: '', chave_privada: '' });
+  }, [dados]);
+  if (!f || !dados) return <Estado erro={erro} />;
+  const dias = dados.certificado ? Math.floor((Date.parse(dados.certificado.valido_ate) - Date.now()) / 864e5) : null;
+  const arquivo = (tipo: 'CERTIFICATE' | 'PRIVATE KEY') => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const arq = e.target.files?.[0];
+    e.target.value = '';
+    if (!arq) return;
+    lerPem(arq, tipo)
+      .then((pem) => setF((x) => x && (tipo === 'CERTIFICATE' ? { ...x, certificado_novo: pem } : { ...x, chave_privada: pem })))
+      .catch((er: Error) => toast(er.message));
+  };
+  return (
+    <form
+      className="card stack"
+      onSubmit={(e) => {
+        e.preventDefault();
+        rodar(() => api.put('/admin/sicredi', { ...f, certificado: f.certificado_novo }), f.ativo ? 'Conexão com o Sicredi conferida. Pix automático ativo.' : 'Pix do Sicredi salvo (desligado).').then((ok) => ok && recarregar());
+      }}
+    >
+      <h2>Pix do Sicredi (baixa automática)</h2>
+      <p className="muted" style={{ margin: 0 }}>
+        Cada mensalidade ganha um QR Pix próprio, gerado pelo Sicredi. Quando o sócio paga, o sistema confere com o Sicredi e <b>dá baixa sozinho</b> — sem "Já paguei" e sem conferência manual. Precisa da adesão à API Pix na cooperativa e do certificado e das credenciais do Portal do Desenvolvedor do Sicredi.
+      </p>
+      {dados.certificado && (
+        <div className={`alert ${dias !== null && dias < 30 ? 'warn' : 'ok'}`}>
+          Certificado de <b>{dados.certificado.titular}</b>, válido até <b>{new Date(dados.certificado.valido_ate).toLocaleDateString('pt-BR')}</b>
+          {dias !== null && dias < 30 ? ` — vence em ${Math.max(dias, 0)} dia(s): renove no Portal do Sicredi para o Pix não parar.` : '.'}
+        </div>
+      )}
+      <div className="grid2">
+        <Campo rotulo="Ambiente">
+          <select className="input" value={f.ambiente} onChange={(e) => setF({ ...f, ambiente: e.target.value as Sicredi['ambiente'] })}>
+            <option value="producao">Produção (cobranças reais)</option>
+            <option value="homologacao">Homologação (testes do Sicredi)</option>
+          </select>
+        </Campo>
+        {f.ambiente === 'homologacao' ? (
+          <Campo rotulo="URL de homologação" ajuda="A que a equipe do Sicredi informou na liberação do teste.">
+            <input className="input" value={f.url_homologacao} onChange={(e) => setF({ ...f, url_homologacao: e.target.value })} placeholder="https://…" />
+          </Campo>
+        ) : (
+          <Campo rotulo="Chave Pix da associação" ajuda="A chave cadastrada na conta Sicredi (CNPJ, e-mail, telefone ou aleatória).">
+            <input className="input" value={f.chave} onChange={(e) => setF({ ...f, chave: e.target.value })} />
+          </Campo>
+        )}
+        {f.ambiente === 'homologacao' && (
+          <Campo rotulo="Chave Pix (de teste)">
+            <input className="input" value={f.chave} onChange={(e) => setF({ ...f, chave: e.target.value })} />
+          </Campo>
+        )}
+        <Campo rotulo="Client ID">
+          <input className="input" value={f.client_id} onChange={(e) => setF({ ...f, client_id: e.target.value.trim() })} autoComplete="off" />
+        </Campo>
+        <Campo rotulo="Client Secret" ajuda={dados.tem_secret ? 'Já guardado. Deixe em branco para manter.' : undefined}>
+          <input className="input" type="password" value={f.client_secret} onChange={(e) => setF({ ...f, client_secret: e.target.value })} placeholder={dados.tem_secret ? '•••• guardado' : ''} autoComplete="new-password" />
+        </Campo>
+        <Campo rotulo="Certificado (.pem, .crt ou .cer)" ajuda={f.certificado_novo ? 'Novo certificado carregado — será conferido ao salvar.' : dados.certificado ? 'Já guardado. Escolha outro só para trocar (renovação).' : 'O certificado assinado baixado no Portal do Sicredi.'}>
+          <input className="input" type="file" accept=".pem,.crt,.cer,.cert" onChange={arquivo('CERTIFICATE')} />
+        </Campo>
+        <Campo rotulo="Chave privada (.key ou .pem)" ajuda={f.chave_privada ? 'Nova chave carregada.' : dados.tem_chave_privada ? 'Já guardada. Escolha outra só para trocar.' : 'A chave privada baixada junto com o certificado.'}>
+          <input className="input" type="file" accept=".key,.pem" onChange={arquivo('PRIVATE KEY')} />
+        </Campo>
+        <Campo rotulo="Validade do QR (horas)" ajuda="Depois disso o app gera um QR novo para a mesma mensalidade.">
+          <input className="input" type="number" min={1} max={720} value={f.expiracao_horas} onChange={(e) => setF({ ...f, expiracao_horas: Number(e.target.value) })} />
+        </Campo>
+      </div>
+      <label className="check">
+        <input type="checkbox" checked={f.ativo} onChange={(e) => setF({ ...f, ativo: e.target.checked })} />
+        <span>
+          <b>Usar o Pix do Sicredi</b> nas mensalidades (o sistema testa a conexão antes de ativar)
+        </span>
+      </label>
+      <p className="muted small" style={{ margin: 0 }}>
+        A chave privada e o Client Secret ficam guardados no servidor e nunca voltam para a tela. Com o Pix do Sicredi ativo, a conferência é feita a cada 2 minutos e, enquanto o sócio está na tela de pagamento, a cada poucos segundos.
+      </p>
+      <div>
+        <button className="btn" disabled={ocupado}>
+          {ocupado ? 'Conferindo com o Sicredi…' : 'Salvar'}
+        </button>
+      </div>
+    </form>
   );
 }
 

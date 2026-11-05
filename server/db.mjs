@@ -113,6 +113,11 @@ for (const sql of [
   'ALTER TABLE mensalidades ADD COLUMN cartao_total REAL',
   'ALTER TABLE mensalidades ADD COLUMN mp_preferencia TEXT',
   'ALTER TABLE mensalidades ADD COLUMN mp_pagamento TEXT',
+  // Pix do Sicredi (1.8): cobrança imediata da mensalidade e o identificador do Pix recebido.
+  'ALTER TABLE mensalidades ADD COLUMN pix_txid TEXT',
+  'ALTER TABLE mensalidades ADD COLUMN pix_copia TEXT',
+  'ALTER TABLE mensalidades ADD COLUMN pix_expira TEXT',
+  'ALTER TABLE mensalidades ADD COLUMN pix_e2e TEXT',
 ]) {
   try {
     db.exec(sql);

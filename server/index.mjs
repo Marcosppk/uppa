@@ -13,6 +13,7 @@ import { listarCopias, fazerCopia, caminhoCopia, iniciarCopias, PASTA as PASTA_C
 import { lerNotificacoes, gravarNotificacoes, avisarNovaInscricao, testarNotificacoes } from './notificar.mjs';
 import { rotasArquivos, fotoDe, fotosDe } from './arquivos.mjs';
 import { rotasMercadoPago, cartaoParaSocio } from './mercadopago.mjs';
+import { rotasSicredi, pixSicrediAtivo } from './sicredi.mjs';
 import { rotasAgenda } from './agenda.mjs';
 import { rotasMensagens, naoLidasDoSocio, naoLidasDaDiretoria } from './mensagens.mjs';
 import { comemoracoesDoSocio, aniversariantes, datasDaCausa, iniciarRotinaDoDia } from './datas.mjs';
@@ -246,10 +247,11 @@ assoc.get('/me', rota((req) => {
   const mensalidades = db.prepare('SELECT * FROM mensalidades WHERE socio_id = ? ORDER BY competencia DESC').all(socio.id);
   const c = lerConfig();
   socio.foto = fotoDe(socio.id);
+  const pixAuto = pixSicrediAtivo();
   return {
     socio,
     carteirinha: socio.matricula ? codigoCarteirinha(socio, segredo) : null,
-    mensalidades: mensalidades.map((m) => ({ ...m, pix: m.status === 'pendente' ? pagamentoPix(m, socio) : null, cartao: cartaoParaSocio(m) })),
+    mensalidades: mensalidades.map(({ pix_copia, pix_e2e, ...m }) => ({ ...m, pix: m.status === 'pendente' ? pagamentoPix(m, socio) : null, pix_auto: pixAuto && ['pendente', 'informada'].includes(m.status), cartao: cartaoParaSocio(m) })),
     associacao: { nome: c.nome_associacao, email: c.email_associacao, pix_chave: c.pix_chave, pix_nome: c.pix_nome, campanhas: c.campanhas !== '0' },
     comemoracoes: comemoracoesDoSocio(socio),
     nao_lidas: naoLidasDoSocio(socio.id),
@@ -544,6 +546,7 @@ adm.get('/exportar/socios.csv', rota((_req, res) => {
 // ---- 1.7: foto e documentos, cartão (Mercado Pago), agenda e mensagens privadas ----
 rotasArquivos({ app, assoc, adm, rota, segredo });
 rotasMercadoPago({ app, assoc, adm, soAdmin, rota, darBaixa });
+rotasSicredi({ app, assoc, adm, soAdmin, rota, darBaixa });
 rotasAgenda({ assoc, adm, rota });
 rotasMensagens({ assoc, adm, rota });
 

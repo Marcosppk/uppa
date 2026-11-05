@@ -62,6 +62,8 @@ export interface Mensalidade {
   /** Pagamento com cartão (Mercado Pago) disponível: total já com a taxa do cartão. */
   cartao?: { total: number; taxa: number } | null;
   mp_preferencia?: string | null;
+  /** Pix do Sicredi ativo: o QR é gerado na hora e a baixa é automática. */
+  pix_auto?: boolean;
   nome?: string;
   matricula?: number | null;
   telefone?: string | null;

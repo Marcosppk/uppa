@@ -196,6 +196,30 @@ O app dos sócios mostra uma faixa com o laço e o tema do mês.
 
 O alto contraste da acessibilidade tem prioridade sobre a cor da campanha. Para desligar as cores: Ajustes → Associação → **Cores das campanhas do mês**.
 
+## Pix do Sicredi (baixa automática)
+
+Com o Pix do Sicredi ativo, cada mensalidade ganha uma **cobrança Pix própria**: o sistema pede ao Sicredi, que devolve o QR e o código copia e cola. Quando o sócio paga, **a mensalidade fica paga sozinha** e entra no caixa como "Pix Sicredi (automático)". O "Já paguei" e a conferência manual deixam de ser necessários.
+
+**O que a associação precisa fazer:** é a "integração individual" descrita na [documentação do Sicredi](https://developers.sicredi.com.br/public/docs/getting-started-pix).
+1. Pedir na cooperativa a **adesão à API Pix** e assinar o termo. Chega por e-mail um ID de Adesão.
+2. Ter uma **chave Pix** na conta do Sicredi.
+3. Criar conta no **Portal do Desenvolvedor**, abrir o chamado "Acesso à API Pix" com o ID de Adesão e esperar a liberação.
+4. No Portal, em Certificados e Credenciais, **registrar o CSR**. Depois da validação, baixar o **certificado** e a **chave privada** e gerar o **Client ID** e o **Client Secret**.
+
+**Configuração:** Financeiro → Ajustes → **Pix do Sicredi (baixa automática)**, só para administradores.
+- Preencha a chave Pix, o Client ID e o Client Secret, escolha os arquivos do certificado e da chave privada e marque **Usar o Pix do Sicredi**.
+- Ao salvar, o sistema confere a conexão com o Sicredi (certificado mTLS + credenciais). Se algo estiver errado, mostra o motivo e não guarda nada.
+- O Client Secret e a chave privada ficam no servidor e nunca aparecem na tela.
+- **Renovação do certificado:** a tela mostra até quando o certificado vale e avisa quando faltam menos de 30 dias. Com o certificado vencido, a integração para.
+
+**Como a baixa é conferida:** o servidor **consulta a cobrança no Sicredi** e só dá baixa quando ela está "CONCLUIDA" com o valor certo. A consulta acontece:
+- a cada 2 minutos, para as cobranças em aberto;
+- a cada poucos segundos, enquanto o sócio está na tela de pagamento.
+
+Um aviso (webhook) para `/api/publico/sicredi/aviso` também é aceito, mas só faz o sistema conferir antes do horário: um aviso falso não paga nada.
+
+Se o Sicredi falhar na hora de gerar o QR, a tela volta para o PIX comum com o "Já paguei".
+
 ## Cartão de crédito (Mercado Pago)
 
 **Configuração:** Ajustes → **Pagamento com cartão** (só administradores):
