@@ -69,7 +69,7 @@ export function MeusDados({ eu, aoMudar, aoSair }: { eu: Eu; aoMudar: () => void
       </div>
       <div style={{ marginTop: 16 }}>
         <PainelAcessibilidade />
-        <SobreVersao />
+        <SobreVersao aoRefazerTour={() => window.dispatchEvent(new Event('uppa-tour'))} />
       </div>
     </>
   );

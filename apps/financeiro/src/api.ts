@@ -7,4 +7,6 @@ export interface Usuario {
   nome: string;
   login: string;
   papel: 'admin' | 'tesoureiro';
+  tour_visto: number;
+  versao_vista: string | null;
 }

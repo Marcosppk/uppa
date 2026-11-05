@@ -85,7 +85,7 @@ const exigir = (tipo) => (req, _res, next) => {
   if (!s) return next(erro(401, 'Sessão expirada. Entre novamente.'));
   req.token = token;
   if (tipo === 'admin') {
-    req.usuario = db.prepare('SELECT id, nome, login, papel FROM usuarios WHERE id = ?').get(s.ref_id);
+    req.usuario = db.prepare('SELECT id, nome, login, papel, tour_visto, versao_vista FROM usuarios WHERE id = ?').get(s.ref_id);
     if (!req.usuario) return next(erro(401, 'Usuário removido.'));
   } else {
     req.socioId = s.ref_id;
@@ -299,6 +299,7 @@ assoc.get('/convite', rota((req) => {
 assoc.get('/avisos', rota(() => comAnexos(db.prepare('SELECT id, titulo, texto, criado_em FROM avisos WHERE publicado = 1 ORDER BY criado_em DESC LIMIT 50').all())));
 
 assoc.post('/sair', rota((req) => { db.prepare('DELETE FROM sessoes WHERE token = ?').run(req.token); }));
+assoc.post('/visto', rota((req) => marcarVisto('socios', req.socioId, req.body)));
 
 app.use('/api/associado', assoc);
 
@@ -333,6 +334,16 @@ const adm = express.Router();
 adm.use(exigir('admin'));
 
 adm.get('/me', rota((req) => req.usuario));
+// Tour visto / última versão vista (para o "o que há de novo" aparecer uma vez por versão).
+const VERSAO_OK = /^\d{1,3}\.\d{1,3}\.\d{1,3}$/;
+const marcarVisto = (tabela, id, d) => {
+  if (d?.tour) db.prepare(`UPDATE ${tabela} SET tour_visto = 1 WHERE id = ?`).run(id);
+  if (d?.versao !== undefined) {
+    if (!VERSAO_OK.test(String(d.versao))) throw erro(400, 'Versão inválida.');
+    db.prepare(`UPDATE ${tabela} SET versao_vista = ? WHERE id = ?`).run(String(d.versao), id);
+  }
+};
+adm.post('/visto', rota((req) => marcarVisto('usuarios', req.usuario.id, req.body)));
 
 adm.get('/convite', rota((req) => {
   const codigo = codigoConvite('admin', req.usuario.id);

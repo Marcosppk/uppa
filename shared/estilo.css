@@ -339,3 +339,23 @@ main:focus { outline: none; }
 :root[data-contraste='alto'] .cartao-entrada { border: 2px solid var(--line); }
 /* Cartões lado a lado (grades) ficam alinhados pelo topo: o espaço entre eles é o "gap" da grade. */
 .grid-cards > .card + .card, .grid2 > .card + .card, .sala-grade > .card + .card { margin-top: 0; }
+
+/* ---------------- 1.10: tour do primeiro acesso ---------------- */
+.tour-bloqueio { position: fixed; inset: 0; z-index: 89; }
+.tour-escuro { position: fixed; inset: 0; z-index: 90; background: rgb(10 16 26 / 55%); }
+.tour-luz {
+  position: fixed; z-index: 90; border-radius: 10px; pointer-events: none;
+  box-shadow: 0 0 0 9999px rgb(10 16 26 / 55%), 0 0 0 3px var(--brand), 0 0 24px 4px color-mix(in srgb, var(--brand) 50%, transparent);
+  transition: top .3s ease, left .3s ease, width .3s ease, height .3s ease;
+}
+.tour-cartao {
+  position: fixed; z-index: 91; display: grid; gap: 10px; padding: 20px; border-radius: 10px;
+  background: var(--surface); color: var(--ink); box-shadow: var(--shadow-alto); animation: aparecer .2s;
+}
+.tour-cartao h2 { margin: 0; font-size: 1.15rem; }
+.tour-cartao p { margin: 0; color: var(--muted); }
+.tour-contador { font-size: .78rem; font-weight: 600; color: var(--brand); text-transform: uppercase; letter-spacing: .05em; }
+.tour-pontos { display: flex; gap: 6px; justify-content: center; }
+.tour-pontos i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+.tour-pontos i.ativo { background: var(--brand); width: 18px; border-radius: 4px; }
+:root[data-contraste='alto'] .tour-luz { box-shadow: 0 0 0 9999px rgb(0 0 0 / 75%), 0 0 0 4px var(--brand); }

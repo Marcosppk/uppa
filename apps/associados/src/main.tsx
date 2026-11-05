@@ -13,7 +13,10 @@ const MinhasMensalidades = lazy(() => import('./MinhasMensalidades').then((m) =>
 const MeusDados = lazy(() => import('./MeusDados').then((m) => ({ default: m.MeusDados })));
 const Sala = lazy(() => import('./acolhimento/Sala').then((m) => ({ default: m.Sala })));
 const Jogo = lazy(() => import('./acolhimento/Sala').then((m) => ({ default: m.Jogo })));
-import { AvisoNovaVersao } from '@shared/versao';
+import { AvisoNovaVersao, VERSAO } from '@shared/versao';
+import { passosAssociados } from './tour';
+// Tour do primeiro acesso e "o que há de novo": só baixados quando há algo a mostrar.
+const Recepcao = lazy(() => import('@shared/Recepcao'));
 import { aplicarCampanha } from '@shared/campanhas';
 const Agenda = lazy(() => import('./Agenda').then((m) => ({ default: m.Agenda })));
 const Mensagens = lazy(() => import('./Mensagens').then((m) => ({ default: m.Mensagens })));
@@ -37,6 +40,18 @@ function App() {
   const [logado, setLogado] = useState(!!api.token());
   const [eu, setEu] = useState<Eu | null>(null);
   const [erro, setErro] = useState('');
+  const [recepcaoFeita, setRecepcaoFeita] = useState(false);
+  const [refazerTour, setRefazerTour] = useState(false);
+  // "Fazer o tour do app de novo" (Meus dados → Sobre o app).
+  useEffect(() => {
+    const tour = () => {
+      ir('/');
+      setRefazerTour(true);
+      setRecepcaoFeita(false);
+    };
+    window.addEventListener('uppa-tour', tour);
+    return () => window.removeEventListener('uppa-tour', tour);
+  }, []);
 
   const carregar = useCallback(() => {
     setErro('');
@@ -129,6 +144,22 @@ function App() {
   return (
     <>
       <PularParaConteudo />
+      {!recepcaoFeita && (refazerTour || !eu.socio.tour_visto || eu.socio.versao_vista !== VERSAO) && (
+        <Suspense fallback={null}>
+          <Recepcao
+            key={String(refazerTour)}
+            tourVisto={!!eu.socio.tour_visto}
+            versaoVista={eu.socio.versao_vista}
+            refazerTour={refazerTour}
+            passos={passosAssociados(eu.socio.nome)}
+            marcar={(v) => api.post('/associado/visto', v)}
+            aoFim={() => {
+              setRecepcaoFeita(true);
+              setRefazerTour(false);
+            }}
+          />
+        </Suspense>
+      )}
       <main className="app" id="conteudo" tabIndex={-1}>
         <Suspense fallback={<Carregando />}>{pagina}</Suspense>
       </main>

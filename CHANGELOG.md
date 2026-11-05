@@ -1,5 +1,11 @@
 # Novidades dos apps da UPPA
 
+<!-- Itens com [Financeiro] ou [Associados] aparecem só naquele app; sem marca, nos dois. -->
+
+## 1.10.0 — 05/11/2026
+- Tour de boas-vindas no primeiro acesso, mostrando cada parte do app (dá para refazer em Sobre o app).
+- Janela "O que há de novo" sempre que o app for atualizado, com as novidades desde a sua última visita.
+
 ## 1.9.2 — 05/11/2026
 - Tela de entrada mais leve: as telas de dentro dos apps, a ficha de inscrição e o histórico de novidades carregam só quando abertos.
 
@@ -23,26 +29,26 @@
 - Mensagens privadas entre a diretoria e cada sócio.
 
 ## 1.6.0 — 05/11/2026
-- Aviso de nova inscrição também por SMS (Zenvia ou Twilio), além de e-mail e WhatsApp.
+- [Financeiro] Aviso de nova inscrição também por SMS (Zenvia ou Twilio), além de e-mail e WhatsApp.
 
 ## 1.5.1 — 05/11/2026
-- Biblioteca de envio de e-mail atualizada, com correções de segurança.
+- [Financeiro] Biblioteca de envio de e-mail atualizada, com correções de segurança.
 
 ## 1.5.0 — 05/11/2026
 - Mural de avisos: links escritos no texto viram clicáveis; vídeos do YouTube e vídeos enviados (MP4, MOV, WEBM) tocam no próprio mural.
-- Cópias de segurança automáticas todos os dias, verificadas, com download em Ajustes (administradores).
+- [Financeiro] Cópias de segurança automáticas todos os dias, verificadas, com download em Ajustes (administradores).
 - Controle de versão: número da versão nos dois apps e aviso para atualizar quando sair uma versão nova.
 - Acessibilidade: tamanho da letra, alto contraste, menos animações, leitura dos avisos em voz alta e melhor navegação pelo teclado e leitor de tela.
-- Aviso de nova inscrição por e-mail e WhatsApp para a diretoria.
+- [Financeiro] Aviso de nova inscrição por e-mail e WhatsApp para a diretoria.
 
 ## 1.4.0 — 04/11/2026
 - Parabéns automáticos: aniversários dos sócios e das pessoas autistas, 2 de abril e 18 de junho, num envelope-presente com fogos e confetes.
-- Aniversariantes no Painel do Financeiro, com mensagem pronta para o WhatsApp.
+- [Financeiro] Aniversariantes no Painel do Financeiro, com mensagem pronta para o WhatsApp.
 - Anexos de imagens e documentos nos avisos.
 - Data de nascimento do sócio na ficha.
 
 ## 1.3.0 — 03/11/2026
-- Sala de acolhimento no app Associados, com 7 atividades calmas.
+- [Associados] Sala de acolhimento no app Associados, com 7 atividades calmas.
 
 ## 1.2.0 — 03/11/2026
 - Link de cadastro (convite) para sócios e equipe; as inscrições só são autorizadas por administrador.

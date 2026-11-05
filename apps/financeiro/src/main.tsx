@@ -18,6 +18,9 @@ const Agenda = lazy(() => import('./Agenda').then((m) => ({ default: m.Agenda })
 const CaixaMensagens = lazy(() => import('./Mensagens').then((m) => ({ default: m.CaixaMensagens })));
 import { aplicarCampanha, campanhaDoMes, Laco } from '@shared/campanhas';
 import { AvisoNovaVersao, VERSAO } from '@shared/versao';
+import { passosFinanceiro } from './tour';
+// Tour do primeiro acesso e "o que há de novo": só baixados quando há algo a mostrar.
+const Recepcao = lazy(() => import('@shared/Recepcao'));
 import { aplicarPreferencias, PularParaConteudo } from '@shared/acessibilidade';
 
 aplicarPreferencias();
@@ -42,6 +45,18 @@ const MENU = [
 function App() {
   const rota = useRota();
   const [usuario, setUsuario] = useState<Usuario | null | undefined>(api.token() ? undefined : null);
+  const [recepcaoFeita, setRecepcaoFeita] = useState(false);
+  const [refazerTour, setRefazerTour] = useState(false);
+  // "Fazer o tour do app de novo" (Ajustes → Sobre o app).
+  useEffect(() => {
+    const tour = () => {
+      ir('/');
+      setRefazerTour(true);
+      setRecepcaoFeita(false);
+    };
+    window.addEventListener('uppa-tour', tour);
+    return () => window.removeEventListener('uppa-tour', tour);
+  }, []);
 
   useEffect(() => {
     if (api.token()) api.get<Usuario>('/admin/me').then(setUsuario).catch(() => setUsuario(null));
@@ -105,6 +120,22 @@ function App() {
           </button>
         </div>
       </aside>
+      {!recepcaoFeita && (refazerTour || !usuario.tour_visto || usuario.versao_vista !== VERSAO) && (
+        <Suspense fallback={null}>
+          <Recepcao
+            key={String(refazerTour)}
+            tourVisto={!!usuario.tour_visto}
+            versaoVista={usuario.versao_vista}
+            refazerTour={refazerTour}
+            passos={passosFinanceiro(usuario.nome, usuario.papel === 'admin')}
+            marcar={(v) => api.post('/admin/visto', v)}
+            aoFim={() => {
+              setRecepcaoFeita(true);
+              setRefazerTour(false);
+            }}
+          />
+        </Suspense>
+      )}
       <main className="conteudo" id="conteudo" tabIndex={-1}>
         <Suspense fallback={<Carregando />}>{pagina}</Suspense>
       </main>

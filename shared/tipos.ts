@@ -36,6 +36,8 @@ export interface Socio {
   controle_planilha: string | null;
   observacoes: string | null;
   tem_senha: boolean;
+  tour_visto?: number;
+  versao_vista?: string | null;
   /** Endereço assinado da foto (perfil e carteirinha), ou null. */
   foto?: string | null;
   n_documentos?: number;

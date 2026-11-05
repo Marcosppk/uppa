@@ -33,7 +33,7 @@ export function Config({ usuario, aoSair, aoMudarCampanha }: { usuario: Usuario;
       <Usuarios admin={admin} eu={usuario} />
       <MinhaSenha />
       <PainelAcessibilidade />
-      <SobreVersao />
+      <SobreVersao aoRefazerTour={() => window.dispatchEvent(new Event('uppa-tour'))} />
     </>
   );
 }

@@ -118,6 +118,11 @@ for (const sql of [
   'ALTER TABLE mensalidades ADD COLUMN pix_copia TEXT',
   'ALTER TABLE mensalidades ADD COLUMN pix_expira TEXT',
   'ALTER TABLE mensalidades ADD COLUMN pix_e2e TEXT',
+  // Tour do primeiro acesso e "o que há de novo" (1.10): guardados por pessoa, valem em qualquer aparelho.
+  'ALTER TABLE socios ADD COLUMN tour_visto INTEGER NOT NULL DEFAULT 0',
+  'ALTER TABLE socios ADD COLUMN versao_vista TEXT',
+  'ALTER TABLE usuarios ADD COLUMN tour_visto INTEGER NOT NULL DEFAULT 0',
+  'ALTER TABLE usuarios ADD COLUMN versao_vista TEXT',
 ]) {
   try {
     db.exec(sql);
