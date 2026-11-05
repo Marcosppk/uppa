@@ -1,5 +1,8 @@
 # Novidades dos apps da UPPA
 
+## 1.5.1 — 05/11/2026
+- Biblioteca de envio de e-mail atualizada, com correções de segurança.
+
 ## 1.5.0 — 05/11/2026
 - Mural de avisos: links escritos no texto viram clicáveis; vídeos do YouTube e vídeos enviados (MP4, MOV, WEBM) tocam no próprio mural.
 - Cópias de segurança automáticas todos os dias, verificadas, com download em Ajustes (administradores).
