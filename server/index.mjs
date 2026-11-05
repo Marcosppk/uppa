@@ -571,7 +571,17 @@ app.use('/api', (_req, _res, next) => next(erro(404, 'Rota não encontrada.')));
 for (const nome of ['financeiro', 'associados']) {
   const pasta = path.resolve('dist', nome);
   if (fs.existsSync(pasta)) {
-    app.use(`/${nome}`, express.static(pasta));
+    // "/associados" sem a barra: entrega a página direto (sem o redirecionamento que custa uma ida e volta),
+    // com <base> para os caminhos relativos dos arquivos; o app acerta a barra no endereço ao abrir.
+    app.get(`/${nome}`, (req, res, next) => {
+      if (req.path.endsWith('/')) return next();
+      res.setHeader('Cache-Control', 'no-cache');
+      res.type('html').send(fs.readFileSync(path.join(pasta, 'index.html'), 'utf8').replace('<head>', `<head>\n    <base href="/${nome}/" />`));
+    });
+    // Arquivos com o código da versão no nome (assets/index-AbC123.js): nunca mudam, cache de 1 ano.
+    app.use(`/${nome}/assets`, express.static(path.join(pasta, 'assets'), { immutable: true, maxAge: '365d', fallthrough: false }));
+    // Ícones e manifesto: 1 dia. A página (index.html) sempre confere se há versão nova.
+    app.use(`/${nome}`, express.static(pasta, { maxAge: '1d', setHeaders: (res, arquivo) => arquivo.endsWith('.html') && res.setHeader('Cache-Control', 'no-cache') }));
   }
 }
 app.get('/', (_req, res) =>
@@ -580,9 +590,10 @@ app.get('/', (_req, res) =>
 <main><h1>UPPA</h1><p>União de Pais e Pessoas Autistas</p><a href="/associados/">UPPA Associados</a><a class="b" href="/financeiro/">UPPA Financeiro</a></main>`));
 
 app.use((e, _req, res, _next) => {
-  if (!(e instanceof ErroHttp)) console.error(e);
-  const status = e instanceof ErroHttp ? e.status : e.type === 'entity.too.large' ? 413 : 500;
-  const mensagem = status === 500 ? 'Erro interno no servidor.' : e.type === 'entity.too.large' ? 'Arquivo grande demais (máximo de 10 MB; vídeos até 60 MB).' : e.message;
+  // Erros 4xx das bibliotecas (ex.: arquivo de /assets que não existe) mantêm o código; o resto vira 500.
+  const status = e instanceof ErroHttp ? e.status : e.type === 'entity.too.large' ? 413 : e.status >= 400 && e.status < 500 ? e.status : 500;
+  if (status === 500) console.error(e);
+  const mensagem = status === 500 ? 'Erro interno no servidor.' : e.type === 'entity.too.large' ? 'Arquivo grande demais (máximo de 10 MB; vídeos até 60 MB).' : status === 404 && !(e instanceof ErroHttp) ? 'Arquivo não encontrado.' : e.message;
   res.status(status).json({ erro: mensagem });
 });
 

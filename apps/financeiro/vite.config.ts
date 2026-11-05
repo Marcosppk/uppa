@@ -14,5 +14,5 @@ export default defineConfig({
   define: { __VERSAO__: JSON.stringify(version) },
   resolve: { alias: { '@shared': fileURLToPath(new URL('../../shared', import.meta.url)) } },
   server: { port: 5173, strictPort: true, proxy: { '/api': 'http://localhost:3333' } },
-  build: { outDir: fileURLToPath(new URL('../../dist/financeiro', import.meta.url)), emptyOutDir: true },
+  build: { target: 'es2022', outDir: fileURLToPath(new URL('../../dist/financeiro', import.meta.url)), emptyOutDir: true },
 });

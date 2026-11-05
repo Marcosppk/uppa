@@ -1,5 +1,8 @@
 # Novidades dos apps da UPPA
 
+## 1.9.1 — 05/11/2026
+- Mais rápido: endereço sem a barra final abre direto (sem redirecionar), arquivos guardados no aparelho por 1 ano (cada versão tem nomes novos), logo 10 vezes menor (WebP) e jogos, agenda, mensagens e QR carregados só quando abertos.
+
 ## 1.9.0 — 05/11/2026
 - Visual novo, mais limpo e profissional: fundo claro com formas suaves (na cor da campanha do mês), cartões brancos com cantos discretos, letras mais leves e botões firmes.
 - Telas de entrada dos dois apps num cartão central, com o usuário lembrado em destaque e rodapé discreto.

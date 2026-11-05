@@ -40,7 +40,7 @@ export function Boasvindas({ aoEntrar, inicial = 'inicio', convite }: { aoEntrar
         {tela === 'inicio' && (
           <>
             <div className="ilustracao-entrada">
-              <Logo tamanho={96} />
+              <Logo tamanho={96} prioridade />
             </div>
             <h1>Boas-vindas à UPPA</h1>
             <p className="subtitulo">Carteirinha, mensalidades, avisos e a sala de acolhimento, tudo num só lugar.</p>

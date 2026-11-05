@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import '@shared/estilo.css';
 import './app.css';
 import { ToastProvider, useRota, Icone, Logo, Carregando, ir } from '@shared/ui';
@@ -11,14 +11,17 @@ import { FichaSocio } from './FichaSocio';
 import { Mensalidades } from './Mensalidades';
 import { Caixa } from './Caixa';
 import { Avisos } from './Avisos';
-import { Config } from './Config';
-import { Agenda } from './Agenda';
-import { CaixaMensagens } from './Mensagens';
+const Config = lazy(() => import('./Config').then((m) => ({ default: m.Config })));
+// Telas menos usadas carregam só quando abertas.
+const Agenda = lazy(() => import('./Agenda').then((m) => ({ default: m.Agenda })));
+const CaixaMensagens = lazy(() => import('./Mensagens').then((m) => ({ default: m.CaixaMensagens })));
 import { aplicarCampanha, campanhaDoMes, Laco } from '@shared/campanhas';
 import { AvisoNovaVersao, VERSAO } from '@shared/versao';
 import { aplicarPreferencias, PularParaConteudo } from '@shared/acessibilidade';
 
 aplicarPreferencias();
+// Aberto como "/financeiro" (sem a barra): acerta o endereço sem recarregar — os links "#/…" contam com a barra.
+if (location.pathname === '/financeiro') history.replaceState(null, '', `/financeiro/${location.search}${location.hash}`);
 // Cor da campanha do mês (a diretoria pode desligar em Ajustes).
 const campanhaLigada = () => api.get<{ campanhas: boolean }>('/publico/config').then((c) => aplicarCampanha(c.campanhas)).catch(() => aplicarCampanha(true));
 aplicarCampanha(true);
@@ -102,7 +105,7 @@ function App() {
         </div>
       </aside>
       <main className="conteudo" id="conteudo" tabIndex={-1}>
-        {pagina}
+        <Suspense fallback={<Carregando />}>{pagina}</Suspense>
       </main>
       <nav className="tabbar" aria-label="Menu principal">
         {MENU.map((m) => (

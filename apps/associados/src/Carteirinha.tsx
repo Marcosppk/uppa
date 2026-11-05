@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import QRCode from 'qrcode';
 import { Logo, Carregando, Icone } from '@shared/ui';
 import { dataBr } from '@shared/formato';
 import { CATEGORIAS } from '@shared/opcoes.js';
@@ -11,7 +10,8 @@ export function useQr(texto: string | null) {
   const [img, setImg] = useState<string | null>(null);
   useEffect(() => {
     if (!texto) return setImg(null);
-    QRCode.toDataURL(texto, { margin: 1, width: 420, errorCorrectionLevel: 'M' }).then(setImg);
+    // A biblioteca do QR só é baixada quando algum QR aparece na tela.
+    import('qrcode').then((m) => m.default.toDataURL(texto, { margin: 1, width: 420, errorCorrectionLevel: 'M' })).then(setImg);
   }, [texto]);
   return img;
 }

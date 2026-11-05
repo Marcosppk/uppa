@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react';
-import logoUppa from './logo-uppa.png';
+import logoUppa from './logo-uppa.webp';
 
 // ---------------- Rotas por hash (#/socios/12) — funcionam igual no navegador e no app nativo ----------------
 export function useRota() {
@@ -217,6 +217,6 @@ export function Icone({ nome, className = 'ico' }: { nome: keyof typeof ICONES |
 }
 
 /** Logo oficial da UPPA Roraima (mão colorida em quebra-cabeça), num quadro branco para ficar bem também no tema escuro. */
-export function Logo({ tamanho = 44 }: { tamanho?: number }) {
-  return <img className="logo-uppa" src={logoUppa} width={tamanho} height={tamanho} alt="UPPA Roraima — União de Pais e Pessoas Autistas" />;
+export function Logo({ tamanho = 44, prioridade = false }: { tamanho?: number; prioridade?: boolean }) {
+  return <img className="logo-uppa" src={logoUppa} width={tamanho} height={tamanho} alt="UPPA Roraima — União de Pais e Pessoas Autistas" decoding="async" fetchPriority={prioridade ? 'high' : 'auto'} />;
 }

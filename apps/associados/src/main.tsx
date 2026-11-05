@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client';
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import '@shared/estilo.css';
 import './app.css';
 import { ToastProvider, useRota, Icone, Carregando, ir } from '@shared/ui';
@@ -9,14 +9,18 @@ import { Inicio } from './Inicio';
 import { Carteirinha, Verificar } from './Carteirinha';
 import { MinhasMensalidades } from './MinhasMensalidades';
 import { MeusDados } from './MeusDados';
-import { Sala, Jogo } from './acolhimento/Sala';
+// Telas menos usadas carregam só quando abertas (a primeira tela fica mais leve).
+const Sala = lazy(() => import('./acolhimento/Sala').then((m) => ({ default: m.Sala })));
+const Jogo = lazy(() => import('./acolhimento/Sala').then((m) => ({ default: m.Jogo })));
 import { AvisoNovaVersao } from '@shared/versao';
 import { aplicarCampanha } from '@shared/campanhas';
-import { Agenda } from './Agenda';
-import { Mensagens } from './Mensagens';
+const Agenda = lazy(() => import('./Agenda').then((m) => ({ default: m.Agenda })));
+const Mensagens = lazy(() => import('./Mensagens').then((m) => ({ default: m.Mensagens })));
 import { aplicarPreferencias, PularParaConteudo } from '@shared/acessibilidade';
 
 aplicarPreferencias();
+// Aberto como "/associados" (sem a barra): acerta o endereço sem recarregar — os links "#/…" contam com a barra.
+if (location.pathname === '/associados') history.replaceState(null, '', `/associados/${location.search}${location.hash}`);
 aplicarCampanha(true);
 
 const MENU = [
@@ -100,7 +104,9 @@ function App() {
   if (base === 'acolhimento' && param)
     return (
       <main className="app sala-jogo" id="conteudo" tabIndex={-1}>
-        <Jogo key={param} id={param} />
+        <Suspense fallback={<Carregando />}>
+          <Jogo key={param} id={param} />
+        </Suspense>
       </main>
     );
 
@@ -118,7 +124,7 @@ function App() {
     <>
       <PularParaConteudo />
       <main className="app" id="conteudo" tabIndex={-1}>
-        {pagina}
+        <Suspense fallback={<Carregando />}>{pagina}</Suspense>
       </main>
       <nav className="tabbar" aria-label="Menu principal">
         {MENU.map((m) => (
