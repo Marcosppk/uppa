@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState, type FormEvent } from 'react';
-import { Campo, Logo, Icone, useAcao, Carregando } from '@shared/ui';
+import { Campo, CampoSenha, Logo, Icone, useAcao, Carregando } from '@shared/ui';
 import { mascaraCpf } from '@shared/formato';
 import { lembrarLogin } from '@shared/lembrar';
 import { api } from './api';
@@ -122,7 +122,7 @@ function Entrar({ voltar, primeiro, aoEntrar }: { voltar: React.ReactNode; prime
         <input className="input" inputMode="numeric" value={mascaraCpf(cpf)} onChange={(e) => setCpf(e.target.value)} required autoComplete="username" placeholder="000.000.000-00" />
       </Campo>
       <Campo rotulo="Senha" ajuda={primeiro ? undefined : 'Primeiro acesso? Use a senha padrão 12345678.'}>
-        <input className="input" type="password" value={senha} onChange={(e) => setSenha(e.target.value)} required autoComplete="current-password" />
+        <CampoSenha value={senha} onChange={(e) => setSenha(e.target.value)} required autoComplete="current-password" />
       </Campo>
       <label className="check">
         <input type="checkbox" checked={lembrar} onChange={(e) => setLembrar(e.target.checked)} />
@@ -161,10 +161,10 @@ function CriarSenha({ aoCriar }: { aoCriar: () => void }) {
       <h1>Crie sua senha</h1>
       <p className="subtitulo">Bem-vindo(a)! Por segurança, troque a senha padrão por uma senha só sua. Você vai usá-la com o seu CPF nas próximas vezes.</p>
       <Campo rotulo="Nova senha" ajuda="Pelo menos 6 caracteres, diferente de 12345678.">
-        <input className="input" type="password" value={f.nova} onChange={(e) => setF({ ...f, nova: e.target.value })} required autoComplete="new-password" autoFocus />
+        <CampoSenha value={f.nova} onChange={(e) => setF({ ...f, nova: e.target.value })} required autoComplete="new-password" autoFocus />
       </Campo>
       <Campo rotulo="Repita a nova senha">
-        <input className="input" type="password" value={f.repetir} onChange={(e) => setF({ ...f, repetir: e.target.value })} required autoComplete="new-password" />
+        <CampoSenha value={f.repetir} onChange={(e) => setF({ ...f, repetir: e.target.value })} required autoComplete="new-password" />
       </Campo>
       {erro && <div className="alert bad">{erro}</div>}
       <button className="btn block" disabled={ocupado}>

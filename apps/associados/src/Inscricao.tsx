@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Campo, Logo, useAcao } from '@shared/ui';
+import { Campo, CampoSenha, Logo, useAcao } from '@shared/ui';
 import { FormSocio, type DadosSocio } from '@shared/FormSocio';
 import { api } from './api';
 
@@ -57,7 +57,7 @@ export function Inscricao({ voltar, convite, aoEnviar }: { voltar: React.ReactNo
       <fieldset>
         <legend>Acesso ao app</legend>
         <Campo rotulo="Crie uma senha para o app (opcional)" ajuda="Para entrar com seu CPF. Se deixar em branco, use a senha padrão 12345678 no primeiro acesso e o app pede para trocar.">
-          <input className="input" type="password" value={senha} onChange={(e) => setSenha(e.target.value)} autoComplete="new-password" />
+          <CampoSenha value={senha} onChange={(e) => setSenha(e.target.value)} autoComplete="new-password" />
         </Campo>
       </fieldset>
       {erro && <div className="alert bad">{erro}</div>}

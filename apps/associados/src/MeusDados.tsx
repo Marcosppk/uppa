@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Campo, Icone, useAcao } from '@shared/ui';
+import { Campo, CampoSenha, Icone, useAcao } from '@shared/ui';
 import { FormSocio, type DadosSocio } from '@shared/FormSocio';
 import { cpfFormatado } from '@shared/formato';
 import { CATEGORIAS, rotulo } from '@shared/opcoes.js';
@@ -50,10 +50,10 @@ export function MeusDados({ eu, aoMudar, aoSair }: { eu: Eu; aoMudar: () => void
       >
         <h2>Trocar senha</h2>
         <Campo rotulo="Senha atual">
-          <input className="input" type="password" value={senha.atual} onChange={(e) => setSenha({ ...senha, atual: e.target.value })} required autoComplete="current-password" />
+          <CampoSenha value={senha.atual} onChange={(e) => setSenha({ ...senha, atual: e.target.value })} required autoComplete="current-password" />
         </Campo>
         <Campo rotulo="Nova senha">
-          <input className="input" type="password" value={senha.nova} onChange={(e) => setSenha({ ...senha, nova: e.target.value })} required autoComplete="new-password" />
+          <CampoSenha value={senha.nova} onChange={(e) => setSenha({ ...senha, nova: e.target.value })} required autoComplete="new-password" />
         </Campo>
         <button className="btn sec" disabled={ocupado}>
           Trocar senha

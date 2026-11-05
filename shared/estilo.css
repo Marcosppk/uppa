@@ -360,3 +360,16 @@ main:focus { outline: none; }
 .tour-pontos i.ativo { background: var(--brand); width: 18px; border-radius: 4px; }
 :root[data-contraste='alto'] .tour-luz { box-shadow: 0 0 0 9999px rgb(0 0 0 / 75%), 0 0 0 4px var(--brand); }
 .input.sm { min-height: 36px; padding: 4px 8px; font-size: .9rem; }
+
+/* ---------------- 1.12: mostrar senha ---------------- */
+.campo-senha { position: relative; display: block; }
+.campo-senha .input { width: 100%; padding-right: 48px; }
+.campo-senha .input::-ms-reveal, .campo-senha .input::-ms-clear { display: none; }
+.ver-senha {
+  position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+  width: 40px; height: 40px; display: grid; place-items: center; padding: 0;
+  border: 0; border-radius: 6px; background: transparent; color: var(--muted); cursor: pointer;
+}
+.ver-senha:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 7%, transparent); }
+.ver-senha:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+.ver-senha[aria-pressed='true'] { color: var(--brand); }

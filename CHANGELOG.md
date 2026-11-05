@@ -2,6 +2,9 @@
 
 <!-- Itens com [Financeiro] ou [Associados] aparecem só naquele app; sem marca, nos dois. -->
 
+## 1.12.0 — 05/11/2026
+- Botão de olho para mostrar ou esconder a senha em todas as telas de entrada e em todos os campos de senha (criar senha, trocar senha, inscrição e ajustes).
+
 ## 1.11.0 — 05/11/2026
 - [Financeiro] Novos perfis de acesso: Presidente (com os mesmos poderes do Administrador) e Membro da Diretoria (um nível abaixo da presidência: tudo da tesouraria e também autorizar inscrições). O Tesoureiro continua como antes.
 - [Financeiro] Em Ajustes, a presidência e os administradores podem mudar o perfil de cada pessoa; o perfil aparece no menu, abaixo do nome.

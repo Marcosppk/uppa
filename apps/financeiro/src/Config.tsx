@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useDados, Estado, Campo, useAcao, Icone, useToast } from '@shared/ui';
+import { useDados, Estado, Campo, CampoSenha, useAcao, Icone, useToast } from '@shared/ui';
 import { api, nomePapel, PAPEIS, podeTudo, type Usuario } from './api';
 import { PainelAcessibilidade } from '@shared/acessibilidade';
 import { SobreVersao } from '@shared/Novidades';
@@ -160,7 +160,7 @@ function AvisosInscricao() {
           <input className="input" type="email" value={f.gmail} onChange={(e) => setF({ ...f, gmail: e.target.value })} placeholder="uppa.avisos@gmail.com" autoComplete="off" />
         </Campo>
         <Campo rotulo="Senha de app do Gmail" ajuda={f.tem_senha_gmail ? 'Já guardada. Deixe em branco para manter.' : 'Não é a senha normal: crie em Conta Google → Segurança → Senhas de app.'}>
-          <input className="input" type="password" value={f.senha_gmail ?? ''} onChange={(e) => setF({ ...f, senha_gmail: e.target.value })} placeholder={f.tem_senha_gmail ? '•••• guardada' : '16 letras'} autoComplete="new-password" />
+          <CampoSenha value={f.senha_gmail ?? ''} onChange={(e) => setF({ ...f, senha_gmail: e.target.value })} placeholder={f.tem_senha_gmail ? '•••• guardada' : '16 letras'} autoComplete="new-password" />
         </Campo>
       </div>
 
@@ -212,7 +212,7 @@ function AvisosInscricao() {
               rotulo={f.sms_provedor === 'twilio' ? 'Auth Token (Twilio)' : 'Token da API (Zenvia)'}
               ajuda={f.tem_token_sms ? 'Já guardado. Deixe em branco para manter.' : f.sms_provedor === 'twilio' ? 'No painel da Twilio, em Account Info.' : 'No painel da Zenvia, em Integrações → Tokens e Webhooks.'}
             >
-              <input className="input" type="password" value={f.sms_token ?? ''} onChange={(e) => setF({ ...f, sms_token: e.target.value })} placeholder={f.tem_token_sms ? '•••• guardado' : ''} autoComplete="new-password" />
+              <CampoSenha value={f.sms_token ?? ''} onChange={(e) => setF({ ...f, sms_token: e.target.value })} placeholder={f.tem_token_sms ? '•••• guardado' : ''} autoComplete="new-password" />
             </Campo>
             <Campo rotulo={f.sms_provedor === 'twilio' ? 'Número Twilio que envia' : 'Remetente (Zenvia)'} ajuda={f.sms_provedor === 'twilio' ? 'Com + e o código do país, como aparece na Twilio.' : 'O nome/remetente de SMS cadastrado na sua conta Zenvia.'}>
               <input className="input" value={f.sms_de} onChange={(e) => setF({ ...f, sms_de: e.target.value })} placeholder={f.sms_provedor === 'twilio' ? '+15551234567' : 'uppa-rr'} autoComplete="off" />
@@ -418,7 +418,7 @@ function PixSicredi() {
           <input className="input" value={f.client_id} onChange={(e) => setF({ ...f, client_id: e.target.value.trim() })} autoComplete="off" />
         </Campo>
         <Campo rotulo="Client Secret" ajuda={dados.tem_secret ? 'Já guardado. Deixe em branco para manter.' : undefined}>
-          <input className="input" type="password" value={f.client_secret} onChange={(e) => setF({ ...f, client_secret: e.target.value })} placeholder={dados.tem_secret ? '•••• guardado' : ''} autoComplete="new-password" />
+          <CampoSenha value={f.client_secret} onChange={(e) => setF({ ...f, client_secret: e.target.value })} placeholder={dados.tem_secret ? '•••• guardado' : ''} autoComplete="new-password" />
         </Campo>
         <Campo rotulo="Certificado (.pem, .crt ou .cer)" ajuda={f.certificado_novo ? 'Novo certificado carregado — será conferido ao salvar.' : dados.certificado ? 'Já guardado. Escolha outro só para trocar (renovação).' : 'O certificado assinado baixado no Portal do Sicredi.'}>
           <input className="input" type="file" accept=".pem,.crt,.cer,.cert" onChange={arquivo('CERTIFICATE')} />
@@ -473,7 +473,7 @@ function PagamentoCartao() {
         O sócio paga a mensalidade com cartão no site seguro do Mercado Pago e a baixa é automática. A <b>taxa do cartão é paga pelo sócio</b>: o valor é aumentado para que, descontada a taxa, a associação receba a mensalidade inteira.
       </p>
       <Campo rotulo="Access Token de produção do Mercado Pago" ajuda={dados.tem_token ? 'Já guardado. Deixe em branco para manter.' : 'No Mercado Pago: Seu negócio → Configurações → Credenciais (começa com APP_USR-).'}>
-        <input className="input" type="password" value={f.token} onChange={(e) => setF({ ...f, token: e.target.value })} placeholder={dados.tem_token ? '•••• guardado' : 'APP_USR-…'} autoComplete="new-password" />
+        <CampoSenha value={f.token} onChange={(e) => setF({ ...f, token: e.target.value })} placeholder={dados.tem_token ? '•••• guardado' : 'APP_USR-…'} autoComplete="new-password" />
       </Campo>
       <div className="grid2">
         <Campo rotulo="Taxa do cartão (%)" ajuda="A que o Mercado Pago cobra no seu plano (ex.: 4,98 para receber na hora).">
@@ -610,7 +610,7 @@ function Usuarios({ admin, eu }: { admin: boolean; eu: Usuario }) {
               <input className="input" value={f.login} onChange={(e) => setF({ ...f, login: e.target.value })} required autoCapitalize="none" />
             </Campo>
             <Campo rotulo="Senha inicial" ajuda="Pelo menos 8 caracteres.">
-              <input className="input" type="password" value={f.senha} onChange={(e) => setF({ ...f, senha: e.target.value })} required autoComplete="new-password" />
+              <CampoSenha value={f.senha} onChange={(e) => setF({ ...f, senha: e.target.value })} required autoComplete="new-password" />
             </Campo>
             <Campo rotulo="Permissão">
               <select className="input" value={f.papel} onChange={(e) => setF({ ...f, papel: e.target.value })}>
@@ -647,10 +647,10 @@ function MinhaSenha() {
       <h2>Minha senha</h2>
       <div className="grid2">
         <Campo rotulo="Senha atual">
-          <input className="input" type="password" value={f.atual} onChange={(e) => setF({ ...f, atual: e.target.value })} required autoComplete="current-password" />
+          <CampoSenha value={f.atual} onChange={(e) => setF({ ...f, atual: e.target.value })} required autoComplete="current-password" />
         </Campo>
         <Campo rotulo="Nova senha">
-          <input className="input" type="password" value={f.nova} onChange={(e) => setF({ ...f, nova: e.target.value })} required autoComplete="new-password" />
+          <CampoSenha value={f.nova} onChange={(e) => setF({ ...f, nova: e.target.value })} required autoComplete="new-password" />
         </Campo>
       </div>
       <div>

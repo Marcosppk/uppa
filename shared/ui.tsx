@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useId, useRef, useState, type InputHTMLAttributes, type ReactNode } from 'react';
 import logoUppa from './logo-uppa.webp';
 
 // ---------------- Rotas por hash (#/socios/12) — funcionam igual no navegador e no app nativo ----------------
@@ -101,6 +101,19 @@ export function Campo({ rotulo, ajuda, children }: { rotulo: string; ajuda?: str
   );
 }
 
+/** Campo de senha com o botão de olho para mostrar ou esconder o que foi digitado. */
+export function CampoSenha(props: Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'className'>) {
+  const [ver, setVer] = useState(false);
+  return (
+    <span className="campo-senha">
+      <input {...props} className="input" type={ver ? 'text' : 'password'} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
+      <button type="button" className="ver-senha" aria-label={ver ? 'Esconder senha' : 'Mostrar senha'} title={ver ? 'Esconder senha' : 'Mostrar senha'} aria-pressed={ver} onClick={() => setVer(!ver)}>
+        <Icone nome={ver ? 'olho_fechado' : 'olho'} />
+      </button>
+    </span>
+  );
+}
+
 export function SimNao({ valor, onChange, rotuloSim = 'Sim', rotuloNao = 'Não' }: { valor: boolean | null | undefined; onChange: (v: boolean) => void; rotuloSim?: string; rotuloNao?: string }) {
   return (
     <div className="seg" role="group">
@@ -195,6 +208,8 @@ const ICONES: Record<string, string> = {
   mais: 'M12 5v14M5 12h14',
   busca: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14M21 21l-4.3-4.3',
   check: 'M20 6 9 17l-5-5',
+  olho: 'M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6',
+  olho_fechado: 'M3 3l18 18M10.6 5.1A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2',
   x: 'M18 6 6 18M6 6l12 12',
   voltar: 'M15 18l-6-6 6-6',
   seta: 'M9 18l6-6-6-6',
