@@ -123,6 +123,7 @@ for (const sql of [
   'ALTER TABLE socios ADD COLUMN versao_vista TEXT',
   'ALTER TABLE usuarios ADD COLUMN tour_visto INTEGER NOT NULL DEFAULT 0',
   'ALTER TABLE usuarios ADD COLUMN versao_vista TEXT',
+  'ALTER TABLE usuarios ADD COLUMN cargo TEXT',
 ]) {
   try {
     db.exec(sql);
@@ -157,6 +158,13 @@ CREATE TABLE IF NOT EXISTS rotinas_feitas (
   feito_em TEXT NOT NULL
 );
 -- Foto do sócio (perfil e carteirinha): uma por sócio, já reduzida no aparelho.
+-- Foto do crachá da equipe do Financeiro.
+CREATE TABLE IF NOT EXISTS usuario_fotos (
+  usuario_id INTEGER PRIMARY KEY REFERENCES usuarios(id) ON DELETE CASCADE,
+  tipo TEXT NOT NULL,
+  dados BLOB NOT NULL,
+  atualizado_em TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS socio_fotos (
   socio_id INTEGER PRIMARY KEY REFERENCES socios(id) ON DELETE CASCADE,
   tipo TEXT NOT NULL,

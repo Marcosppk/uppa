@@ -7,6 +7,7 @@ export interface Usuario {
   nome: string;
   login: string;
   papel: Papel;
+  cargo?: string | null;
   tour_visto: number;
   versao_vista: string | null;
 }

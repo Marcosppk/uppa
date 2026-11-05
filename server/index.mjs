@@ -18,6 +18,7 @@ import { rotasAgenda } from './agenda.mjs';
 import { rotasMensagens, naoLidasDoSocio, naoLidasDaDiretoria } from './mensagens.mjs';
 import { comemoracoesDoSocio, aniversariantes, datasDaCausa, iniciarRotinaDoDia } from './datas.mjs';
 import { CATEGORIAS, RENDAS, rotulo } from '../shared/opcoes.js';
+import { rotasCracha } from './cracha.mjs';
 
 const PORTA = Number(process.env.PORT || 3333);
 const DIAS_SESSAO = 30;
@@ -520,7 +521,7 @@ adm.put('/config', soAdmin, rota((req) => {
   for (const k of CHAVES_CONFIG) if (k in (req.body ?? {})) up.run(k, String(req.body[k] ?? '').trim());
 }));
 
-adm.get('/usuarios', rota(() => db.prepare('SELECT id, nome, login, papel FROM usuarios ORDER BY nome').all()));
+adm.get('/usuarios', rota(() => db.prepare('SELECT id, nome, login, papel, cargo FROM usuarios ORDER BY nome').all()));
 adm.post('/usuarios', soAdmin, rota((req) => {
   const { nome, login, senha, papel } = req.body ?? {};
   if (!nome || !login || String(senha ?? '').length < 8) throw erro(400, 'Preencha nome, usuário e uma senha com pelo menos 8 caracteres.');
@@ -577,6 +578,7 @@ adm.get('/exportar/socios.csv', rota((_req, res) => {
 
 // ---- 1.7: foto e documentos, cartão (Mercado Pago), agenda e mensagens privadas ----
 rotasArquivos({ app, assoc, adm, rota, segredo });
+rotasCracha({ app, adm, rota, segredo, podeTudo });
 rotasMercadoPago({ app, assoc, adm, soAdmin, rota, darBaixa });
 rotasSicredi({ app, assoc, adm, soAdmin, rota, darBaixa });
 rotasAgenda({ assoc, adm, rota });

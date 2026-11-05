@@ -2,6 +2,12 @@
 
 <!-- Itens com [Financeiro] ou [Associados] aparecem só naquele app; sem marca, nos dois. -->
 
+## 1.14.0 — 05/11/2026
+- [Financeiro] Crachá de identificação para a equipe (presidência, diretoria, tesouraria): foto, nome, cargo e QR Code. Abra clicando no seu nome no menu ou em Ajustes → Pessoas com acesso → Crachá.
+- [Financeiro] Imprime no tamanho de crachá (5,4 × 8,6 cm) com linha de recorte, ou salva em PDF.
+- [Financeiro] A presidência define o cargo escrito no crachá (ex.: Vice-presidente, Secretária) e pode pôr a foto de cada pessoa.
+- Quem aponta a câmera para o QR do crachá vê na hora se a pessoa faz parte da equipe da UPPA. Quem perde o acesso deixa de ser reconhecido.
+
 ## 1.13.0 — 05/11/2026
 - Campos de data agora aceitam digitação (dd/mm/aaaa, as barras entram sozinhas; "1/5/85" vira 01/05/1985), com o botão de calendário ao lado para quem prefere escolher. Datas impossíveis ou fora do permitido são avisadas no próprio campo.
 - [Financeiro] O mês da mensalidade na ficha do sócio também pode ser digitado (mm/aaaa).

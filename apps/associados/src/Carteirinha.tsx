@@ -6,15 +6,8 @@ import { api, URL_PUBLICA, type Eu } from './api';
 import { urlApi } from '@shared/api';
 import { RodapeEntrada } from './Boasvindas';
 
-export function useQr(texto: string | null) {
-  const [img, setImg] = useState<string | null>(null);
-  useEffect(() => {
-    if (!texto) return setImg(null);
-    // A biblioteca do QR só é baixada quando algum QR aparece na tela.
-    import('qrcode').then((m) => m.default.toDataURL(texto, { margin: 1, width: 420, errorCorrectionLevel: 'M' })).then(setImg);
-  }, [texto]);
-  return img;
-}
+export { useQr } from '@shared/useQr';
+import { useQr } from '@shared/useQr';
 
 export function Carteirinha({ eu }: { eu: Eu }) {
   const { socio, carteirinha } = eu;
@@ -104,6 +97,42 @@ export function Verificar({ codigo }: { codigo: string }) {
             <h2 style={{ margin: 0 }}>{r.nome}</h2>
             <p className="muted" style={{ margin: 0 }}>
               Matrícula {String(r.matricula).padStart(4, '0')} · {r.categoria}
+            </p>
+          </>
+        )}
+      </main>
+      <RodapeEntrada />
+    </div>
+  );
+}
+
+/** Página pública aberta pelo QR do crachá da equipe (presidência, diretoria, tesouraria). */
+export function VerificarCracha({ codigo }: { codigo: string }) {
+  const [r, setR] = useState<{ nome: string; cargo: string; foto: string | null } | null>(null);
+  const [erro, setErro] = useState('');
+  useEffect(() => {
+    api.get<typeof r>(`/publico/cracha/${encodeURIComponent(codigo)}`).then(setR).catch((e) => setErro(e.message));
+  }, [codigo]);
+  return (
+    <div className="tela-entrada">
+      <main className="cartao-entrada center">
+        <div className="marca-entrada">
+          <Logo tamanho={32} /> UPPA Roraima
+        </div>
+        <h1>Conferência de crachá</h1>
+        {erro ? (
+          <div className="alert bad">{erro}</div>
+        ) : !r ? (
+          <Carregando />
+        ) : (
+          <>
+            <span className="tag ok" style={{ justifySelf: 'center', fontSize: '1rem' }}>
+              Faz parte da equipe da UPPA
+            </span>
+            {r.foto && <img src={urlApi(r.foto)} alt={`Foto de ${r.nome}`} style={{ width: 140, height: 140, borderRadius: 20, objectFit: 'cover', justifySelf: 'center' }} />}
+            <h2 style={{ margin: 0 }}>{r.nome}</h2>
+            <p className="muted" style={{ margin: 0 }}>
+              {r.cargo}
             </p>
           </>
         )}

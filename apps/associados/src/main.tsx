@@ -9,6 +9,7 @@ import { Boasvindas } from './Boasvindas';
 const Inicio = lazy(() => import('./Inicio').then((m) => ({ default: m.Inicio })));
 const Carteirinha = lazy(() => import('./Carteirinha').then((m) => ({ default: m.Carteirinha })));
 const Verificar = lazy(() => import('./Carteirinha').then((m) => ({ default: m.Verificar })));
+const VerificarCracha = lazy(() => import('./Carteirinha').then((m) => ({ default: m.VerificarCracha })));
 const MinhasMensalidades = lazy(() => import('./MinhasMensalidades').then((m) => ({ default: m.MinhasMensalidades })));
 const MeusDados = lazy(() => import('./MeusDados').then((m) => ({ default: m.MeusDados })));
 const Sala = lazy(() => import('./acolhimento/Sala').then((m) => ({ default: m.Sala })));
@@ -83,6 +84,12 @@ function App() {
 
   const [caminho, consulta] = rota.split('?');
   const [base, param] = caminho.split('/').filter(Boolean);
+  if (base === 'cracha')
+    return (
+      <Suspense fallback={<Carregando />}>
+        <VerificarCracha codigo={param ?? ''} />
+      </Suspense>
+    );
   if (base === 'verificar')
     return (
       <Suspense fallback={<Carregando />}>

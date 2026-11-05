@@ -385,3 +385,52 @@ main:focus { outline: none; }
 /* O campo nativo fica invisível por cima do ícone: um toque abre o calendário do aparelho. */
 .abrir-calendario input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; border: 0; padding: 0; margin: 0; }
 .abrir-calendario input::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+
+/* ---------------- 1.14: crachá da equipe ---------------- */
+/* Medidas em milímetros de crachá (--mm): na tela 1 mm = 5,4 px; na impressão, 1 mm de verdade. */
+.cracha {
+  --mm: 5.4px; --azul: #1f6fb2; --verde: #2a9d8f;
+  width: calc(54 * var(--mm)); height: calc(86 * var(--mm)); position: relative; overflow: hidden;
+  display: grid; grid-template-rows: auto 1fr auto auto; background: #fff; color: #12283b;
+  border-radius: calc(3 * var(--mm)); box-shadow: var(--shadow-alto); font-family: var(--fonte);
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.cracha-topo {
+  display: flex; align-items: center; gap: calc(2 * var(--mm)); padding: calc(3 * var(--mm)) calc(3.5 * var(--mm));
+  background: linear-gradient(135deg, var(--azul), #2a8fbf 55%, var(--verde)); color: #fff;
+}
+.cracha-topo .logo-uppa { width: calc(9 * var(--mm)); height: calc(9 * var(--mm)); box-shadow: none; border-radius: calc(2 * var(--mm)); background: #fff; }
+.cracha-topo b { display: block; font-size: calc(3.4 * var(--mm)); line-height: 1.1; }
+.cracha-topo span { display: block; font-size: calc(1.9 * var(--mm)); opacity: .92; line-height: 1.2; }
+.cracha-corpo { display: grid; justify-items: center; align-content: center; gap: calc(1.2 * var(--mm)); padding: calc(2 * var(--mm)) calc(3 * var(--mm)) 0; text-align: center; }
+.cracha-foto {
+  width: calc(27 * var(--mm)); height: calc(27 * var(--mm)); object-fit: cover; border-radius: calc(3 * var(--mm));
+  border: calc(.8 * var(--mm)) solid #fff; box-shadow: 0 0 0 calc(.4 * var(--mm)) #d5e3ef;
+}
+.cracha-foto.sem-foto { display: grid; place-items: center; background: #e7f0f8; color: var(--azul); font-weight: 700; font-size: calc(9 * var(--mm)); }
+.cracha-nome { font-weight: 700; font-size: calc(4.2 * var(--mm)); line-height: 1.15; margin-top: calc(1 * var(--mm)); overflow-wrap: anywhere; }
+.cracha-cargo { font-weight: 600; font-size: calc(3 * var(--mm)); color: var(--azul); text-transform: uppercase; letter-spacing: .04em; }
+.cracha.papel-diretoria .cracha-cargo { color: #1d7f74; }
+.cracha.papel-tesoureiro .cracha-cargo { color: #2f7a3a; }
+.cracha-pe { display: flex; align-items: center; gap: calc(2 * var(--mm)); padding: calc(1.5 * var(--mm)) calc(3.5 * var(--mm)) calc(2 * var(--mm)); }
+.cracha-qr { width: calc(15 * var(--mm)); height: calc(15 * var(--mm)); flex: none; }
+.cracha-pe span { font-size: calc(1.9 * var(--mm)); color: #4a5d70; line-height: 1.25; }
+.cracha-faixa {
+  background: linear-gradient(90deg, var(--azul), var(--verde)); color: #fff; text-align: center; font-weight: 700;
+  font-size: calc(2.4 * var(--mm)); letter-spacing: .25em; text-transform: uppercase; padding: calc(1.6 * var(--mm)) 0;
+}
+.cracha-tela { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 24px; align-items: start; }
+.cracha-previa { position: sticky; top: 16px; }
+@media (max-width: 760px) {
+  .cracha-tela { grid-template-columns: 1fr; }
+  .cracha-previa { position: static; justify-self: center; }
+}
+.quem-nome { display: grid; color: inherit; text-decoration: none; border-radius: 6px; }
+.quem-nome:hover span:first-child { text-decoration: underline; }
+.cracha-impressao { display: none; }
+@media print {
+  body.imprimir-cracha > :not(.cracha-impressao) { display: none !important; }
+  body.imprimir-cracha { background: #fff !important; }
+  body.imprimir-cracha .cracha-impressao { display: block; padding: 6mm; }
+  body.imprimir-cracha .cracha-impressao .cracha { --mm: 1mm; box-shadow: none; outline: .2mm dashed #9aa7b4; outline-offset: 1.5mm; border-radius: 3mm; }
+}

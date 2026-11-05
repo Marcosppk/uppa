@@ -15,6 +15,7 @@ const Avisos = lazy(() => import('./Avisos').then((m) => ({ default: m.Avisos })
 const Config = lazy(() => import('./Config').then((m) => ({ default: m.Config })));
 // Telas menos usadas carregam só quando abertas.
 const Agenda = lazy(() => import('./Agenda').then((m) => ({ default: m.Agenda })));
+const Cracha = lazy(() => import('./Cracha').then((m) => ({ default: m.Cracha })));
 const CaixaMensagens = lazy(() => import('./Mensagens').then((m) => ({ default: m.CaixaMensagens })));
 import { aplicarCampanha, campanhaDoMes, Laco } from '@shared/campanhas';
 import { AvisoNovaVersao, VERSAO } from '@shared/versao';
@@ -88,6 +89,7 @@ function App() {
   else if (base === 'avisos') pagina = <Avisos />;
   else if (base === 'mensagens') pagina = <CaixaMensagens />;
   else if (base === 'agenda') pagina = <Agenda />;
+  else if (base === 'cracha') pagina = <Cracha key={id ?? 'eu'} usuario={usuario} id={id ? Number(id) : undefined} />;
   else if (base === 'config') pagina = <Config usuario={usuario} aoSair={sair} aoMudarCampanha={campanhaLigada} />;
   else pagina = <Painel />;
 
@@ -110,8 +112,10 @@ function App() {
           ))}
         </nav>
         <div className="quem">
-          <span>{usuario.nome}</span>
-          <span className="muted small">{nomePapel(usuario.papel)}</span>
+          <a className="quem-nome" href="#/cracha" title="Ver meu crachá">
+            <span>{usuario.nome}</span>
+            <span className="muted small">{nomePapel(usuario.papel)} · meu crachá</span>
+          </a>
           <span className="muted small">Versão {VERSAO}</span>
           {document.documentElement.dataset.campanha && <span className="selo-campanha">
               <Laco cor={campanhaDoMes().cor} tamanho={18} /> {campanhaDoMes().nome}

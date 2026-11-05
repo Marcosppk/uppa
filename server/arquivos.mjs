@@ -28,7 +28,7 @@ const IMAGENS = {
 };
 const PDF = (b) => b.subarray(0, 4).toString('latin1') === '%PDF';
 /** Descobre o tipo pelo conteúdo (não confia no nome nem no que o navegador diz). */
-const tipoReal = (b) => Object.entries(IMAGENS).find(([, f]) => f(b))?.[0] ?? (PDF(b) ? 'application/pdf' : null);
+export const tipoReal = (b) => Object.entries(IMAGENS).find(([, f]) => f(b))?.[0] ?? (PDF(b) ? 'application/pdf' : null);
 
 const bruto = express.raw({ type: () => true, limit: MAX_DOC + 1024 });
 const cabecalho = (req, nome) => decodeURIComponent(req.get(nome) ?? '');

@@ -558,7 +558,13 @@ function Usuarios({ admin, eu }: { admin: boolean; eu: Usuario }) {
           <li key={u.id}>
             <div className="sp">
               <b>{u.nome}</b> <span className="muted small">({u.login})</span>
+              {u.cargo && <div className="muted small">{u.cargo}</div>}
             </div>
+            {(admin || u.id === eu.id) && (
+              <a className="btn ghost sm" href={u.id === eu.id ? '#/cracha' : `#/cracha/${u.id}`}>
+                Crachá
+              </a>
+            )}
             {admin && u.id !== eu.id ? (
               <select
                 className="input sm"
