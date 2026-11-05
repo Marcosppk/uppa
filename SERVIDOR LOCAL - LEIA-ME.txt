@@ -1,0 +1,33 @@
+﻿UPPA — SERVIDOR LOCAL (Servidor 2 / PC MARCOS)
+==============================================
+
+No ar pela internet em https://uppa.puxaiapp.com.br (túnel Cloudflare próprio) e também na rede local.
+Não depende do Servidor 1 nem dos serviços/túneis S2.
+
+ENDEREÇOS
+  Internet ............ https://uppa.puxaiapp.com.br/financeiro/   e   https://uppa.puxaiapp.com.br/associados/
+  Neste PC ............ http://localhost:8860/financeiro/   e   http://localhost:8860/associados/
+  Outros aparelhos no
+  mesmo Wi-Fi/rede .... http://192.168.100.2:8860/financeiro/   e   http://192.168.100.2:8860/associados/
+  (se o IP do PC mudar, veja o novo com o comando ipconfig)
+
+ONDE FICA
+  C:\UPPA\app      programa (servidor + os dois apps)
+  C:\UPPA\dados    banco de dados uppa.db  <- FAÇA CÓPIA DE SEGURANÇA DESTE ARQUIVO
+  C:\UPPA\logs     registros
+  C:\UPPA\servico  serviço do Windows "UPPA-Servidor" (liga sozinho com o PC)
+
+SERVIÇO E FIREWALL
+  Serviço  : UPPA-Servidor (separado dos serviços S2 do Bruno)
+  Firewall : regra "UPPA - servidor (rede local, porta 8860)", aceita só a sub-rede local
+
+ATUALIZAR DEPOIS DE MUDAR O CÓDIGO
+  Na pasta do projeto: npm run build, copiar server, shared e dist para C:\UPPA\app
+  e reiniciar o serviço UPPA-Servidor (como administrador).
+
+TÚNEL (internet)
+  Serviço  : UPPA-Tunel (cloudflared), liga sozinho depois do UPPA-Servidor
+  Túnel    : "uppa" (id ea44cb89-6eae-4143-accf-d7023e0066b2), conta Cloudflare do puxaiapp.com.br
+  Config   : C:\UPPA\tunel\config.yml  (credencial do túnel ao lado: não compartilhe)
+  O primeiro administrador do Financeiro só pode ser criado de um aparelho da rede local.
+

@@ -1,0 +1,75 @@
+import { useEffect, useState, type FormEvent } from 'react';
+import { Campo, Logo, Carregando } from '@shared/ui';
+import { lembrarLogin } from '@shared/lembrar';
+import { api, type Usuario } from './api';
+
+const memoria = lembrarLogin('uppa-financeiro');
+
+export function Entrar({ aoEntrar }: { aoEntrar: (u: Usuario) => void }) {
+  const [primeiro, setPrimeiro] = useState<boolean | null>(null);
+  const [f, setF] = useState({ nome: '', login: memoria.usuario, senha: '' });
+  const [lembrar, setLembrar] = useState(memoria.lembrar);
+  const [erro, setErro] = useState('');
+  const [ocupado, setOcupado] = useState(false);
+
+  useEffect(() => {
+    api.get<{ precisa: boolean }>('/admin/setup').then((r) => setPrimeiro(r.precisa)).catch((e) => setErro(e.message));
+  }, []);
+
+  async function enviar(e: FormEvent) {
+    e.preventDefault();
+    setErro('');
+    setOcupado(true);
+    try {
+      const r = await api.post<{ token: string }>(primeiro ? '/admin/setup' : '/admin/login', { ...f, lembrar });
+      api.gravarToken(r.token, lembrar);
+      memoria.salvar(lembrar, f.login);
+      aoEntrar(await api.get<Usuario>('/admin/me'));
+    } catch (e) {
+      setErro((e as Error).message);
+    } finally {
+      setOcupado(false);
+    }
+  }
+
+  return (
+    <div className="entrar">
+      <form className="card stack" onSubmit={enviar}>
+        <div className="marca">
+          <Logo tamanho={120} />
+          <h1 style={{ margin: 0 }}>UPPA Financeiro</h1>
+          <span className="muted">Tesouraria da União de Pais e Pessoas Autistas</span>
+        </div>
+        {primeiro === null && !erro && <Carregando />}
+        {primeiro && <div className="alert">Primeiro acesso: crie o usuário administrador da tesouraria.</div>}
+        {primeiro && (
+          <Campo rotulo="Seu nome">
+            <input className="input" value={f.nome} onChange={(e) => setF({ ...f, nome: e.target.value })} required autoComplete="name" />
+          </Campo>
+        )}
+        {primeiro !== null && (
+          <>
+            <Campo rotulo="Usuário">
+              <input className="input" value={f.login} onChange={(e) => setF({ ...f, login: e.target.value })} required autoComplete="username" autoCapitalize="none" />
+            </Campo>
+            <Campo rotulo="Senha" ajuda={primeiro ? 'Pelo menos 8 caracteres.' : undefined}>
+              <input className="input" type="password" value={f.senha} onChange={(e) => setF({ ...f, senha: e.target.value })} required autoComplete={primeiro ? 'new-password' : 'current-password'} />
+            </Campo>
+            <label className="check">
+              <input type="checkbox" checked={lembrar} onChange={(e) => setLembrar(e.target.checked)} />
+              <span>
+                Lembrar de mim <span className="muted small">(não marque em computador compartilhado)</span>
+              </span>
+            </label>
+          </>
+        )}
+        {erro && <div className="alert bad">{erro}</div>}
+        {primeiro !== null && (
+          <button className="btn block" disabled={ocupado}>
+            {primeiro ? 'Criar administrador e entrar' : 'Entrar'}
+          </button>
+        )}
+      </form>
+    </div>
+  );
+}

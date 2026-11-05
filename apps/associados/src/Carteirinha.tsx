@@ -1,0 +1,101 @@
+import { useEffect, useState } from 'react';
+import QRCode from 'qrcode';
+import { Logo, Carregando } from '@shared/ui';
+import { dataBr } from '@shared/formato';
+import { CATEGORIAS } from '@shared/opcoes.js';
+import { api, URL_PUBLICA, type Eu } from './api';
+
+export function useQr(texto: string | null) {
+  const [img, setImg] = useState<string | null>(null);
+  useEffect(() => {
+    if (!texto) return setImg(null);
+    QRCode.toDataURL(texto, { margin: 1, width: 420, errorCorrectionLevel: 'M' }).then(setImg);
+  }, [texto]);
+  return img;
+}
+
+export function Carteirinha({ eu }: { eu: Eu }) {
+  const { socio, carteirinha } = eu;
+  const qr = useQr(carteirinha ? `${URL_PUBLICA}/#/verificar/${carteirinha}` : null);
+  const cat = CATEGORIAS.find((c) => c.valor === socio.categoria);
+
+  if (!socio.matricula) {
+    return (
+      <>
+        <h1>Carteirinha</h1>
+        <div className="card empty">A carteirinha fica disponível depois que a diretoria aprovar sua inscrição.</div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <h1>Carteirinha de sócio</h1>
+      <div className={`carteira ${socio.status !== 'ativo' ? 'inativa' : ''}`}>
+        <div className="topo-c">
+          <Logo tamanho={56} />
+          <div>
+            <b>UPPA Roraima</b>
+            <span>União de Pais e Pessoas Autistas</span>
+          </div>
+        </div>
+        <div className="nome">{socio.nome}</div>
+        <div className="pe">
+          <div>
+            Matrícula
+            <b>{String(socio.matricula).padStart(4, '0')}</b>
+          </div>
+          <div>
+            Categoria
+            <b>{cat?.tipo ?? '—'}</b>
+          </div>
+          <div>
+            Desde
+            <b>{dataBr(socio.inscrito_em).slice(3)}</b>
+          </div>
+        </div>
+      </div>
+      <div className="card center" style={{ marginTop: 16 }}>
+        {qr ? <img className="qr" src={qr} alt="QR Code de verificação da carteirinha" /> : <Carregando />}
+        <p className="muted small" style={{ marginTop: 10 }}>
+          Mostre este código para confirmar que você é sócio{socio.status === 'ativo' ? ' ativo' : ''} da UPPA.
+        </p>
+        {socio.status !== 'ativo' && <div className="alert bad">Cadastro inativo.</div>}
+      </div>
+    </>
+  );
+}
+
+/** Página pública aberta pelo QR da carteirinha. */
+export function Verificar({ codigo }: { codigo: string }) {
+  const [r, setR] = useState<{ nome: string; matricula: number; categoria: string; ativo: boolean } | null>(null);
+  const [erro, setErro] = useState('');
+  useEffect(() => {
+    api.get<typeof r>(`/publico/verificar/${encodeURIComponent(codigo)}`).then(setR).catch((e) => setErro(e.message));
+  }, [codigo]);
+  return (
+    <div className="hero">
+      <div className="marca">
+        <Logo tamanho={120} />
+        <h1>Verificação de sócio</h1>
+      </div>
+      <div className="card stack center">
+        {erro ? (
+          <div className="alert bad">{erro}</div>
+        ) : !r ? (
+          <Carregando />
+        ) : (
+          <>
+            <span className={`tag ${r.ativo ? 'ok' : 'bad'}`} style={{ justifySelf: 'center', fontSize: '1rem' }}>
+              {r.ativo ? 'Sócio ativo' : 'Cadastro inativo'}
+            </span>
+            <h2 style={{ margin: 0 }}>{r.nome}</h2>
+            <p className="muted" style={{ margin: 0 }}>
+              Matrícula {String(r.matricula).padStart(4, '0')} · {r.categoria}
+            </p>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

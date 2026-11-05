@@ -1,0 +1,39 @@
+.shell { min-height: 100vh; }
+.side { display: none; }
+.conteudo { padding: 16px 16px calc(96px + env(safe-area-inset-bottom)); max-width: 1180px; margin: 0 auto; padding-top: calc(16px + env(safe-area-inset-top)); }
+.topo { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.topo h1 { margin: 0; flex: 1; min-width: 160px; }
+.filtros { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.filtros .input { width: auto; flex: 1 1 160px; }
+.busca { position: relative; flex: 2 1 240px; }
+.busca .ico { position: absolute; left: 12px; top: 12px; color: var(--muted); }
+.busca .input { padding-left: 40px; }
+.mes-nav { display: inline-flex; align-items: center; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 2px; }
+.mes-nav b { min-width: 150px; text-align: center; }
+.acoes { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+.so-largo { display: none; }
+
+@media (min-width: 900px) {
+  .shell { display: grid; grid-template-columns: 240px 1fr; }
+  .tabbar { display: none; }
+  .side {
+    display: flex; flex-direction: column; gap: 18px; position: sticky; top: 0; height: 100vh;
+    background: var(--surface); border-right: 1px solid var(--line); padding: 20px 14px;
+  }
+  .marca { display: flex; align-items: center; gap: 10px; padding: 0 8px; }
+  .marca div { display: grid; line-height: 1.15; }
+  .marca b { font-size: 1.15rem; }
+  .marca span { color: var(--brand); font-weight: 600; font-size: .9rem; }
+  .side nav { display: grid; gap: 2px; }
+  .side nav a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; color: var(--ink); text-decoration: none; }
+  .side nav a:hover { background: var(--surface-2); }
+  .side nav a[aria-current='page'] { background: var(--brand-2); color: var(--brand); font-weight: 700; }
+  .quem { margin-top: auto; display: grid; gap: 4px; padding: 0 8px; color: var(--muted); font-size: .9rem; }
+  .quem .btn { justify-content: flex-start; padding-inline: 0; }
+  .conteudo { padding: 28px 32px; width: 100%; }
+  .so-largo { display: table-cell; }
+}
+
+.entrar { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
+.entrar .card { width: min(420px, 100%); padding: 28px; }
+.entrar .marca { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 18px; text-align: center; }

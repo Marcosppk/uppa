@@ -1,0 +1,6 @@
+{
+  "appId": "br.org.uppa.associados",
+  "appName": "UPPA Associados",
+  "webDir": "../../dist/associados",
+  "server": { "androidScheme": "https" }
+}

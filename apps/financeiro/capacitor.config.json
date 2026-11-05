@@ -1,0 +1,6 @@
+{
+  "appId": "br.org.uppa.financeiro",
+  "appName": "UPPA Financeiro",
+  "webDir": "../../dist/financeiro",
+  "server": { "androidScheme": "https" }
+}

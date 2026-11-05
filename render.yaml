@@ -1,0 +1,19 @@
+# Publicação no Render (render.com → New → Blueprint → este repositório). Veja LEIA-ME.md.
+# O disco persistente guarda o banco SQLite; sem ele os dados somem a cada reinício.
+services:
+  - type: web
+    name: uppa
+    runtime: node
+    plan: starter
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/saude
+    envVars:
+      - key: NODE_VERSION
+        value: "22.13.0"
+      - key: UPPA_DB
+        value: /var/data/uppa.db
+    disk:
+      name: dados
+      mountPath: /var/data
+      sizeGB: 1

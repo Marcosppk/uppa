@@ -1,0 +1,41 @@
+{
+  "name": "uppa",
+  "version": "1.5.0",
+  "private": true,
+  "type": "module",
+  "description": "UPPA — União de Pais e Pessoas Autistas: apps UPPA Financeiro e UPPA Associados integrados",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "server": "node --watch server/index.mjs",
+    "start": "node server/index.mjs",
+    "typecheck": "tsc --noEmit",
+    "build:financeiro": "vite build --config apps/financeiro/vite.config.ts",
+    "build:associados": "vite build --config apps/associados/vite.config.ts",
+    "build": "tsc --noEmit && npm run build:financeiro && npm run build:associados",
+    "app:financeiro:android": "npm run build:financeiro && cd apps/financeiro && npx cap add android && npx cap sync android",
+    "app:financeiro:ios": "npm run build:financeiro && cd apps/financeiro && npx cap add ios && npx cap sync ios",
+    "app:associados:android": "npm run build:associados && cd apps/associados && npx cap add android && npx cap sync android",
+    "app:associados:ios": "npm run build:associados && cd apps/associados && npx cap add ios && npx cap sync ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.6.0",
+    "express": "^5.3.0",
+    "nodemailer": "^6.9.16",
+    "qrcode": "^1.5.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.6.0",
+    "@types/node": "^26.6.6",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}
