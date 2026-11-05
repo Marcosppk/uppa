@@ -5,12 +5,13 @@ import './app.css';
 import { ToastProvider, useRota, Icone, Logo, Carregando, ir } from '@shared/ui';
 import { api, type Usuario } from './api';
 import { Entrar } from './Entrar';
-import { Painel } from './Painel';
-import { Socios } from './Socios';
-import { FichaSocio } from './FichaSocio';
-import { Mensalidades } from './Mensalidades';
-import { Caixa } from './Caixa';
-import { Avisos } from './Avisos';
+// As telas carregam só quando abertas: a tela de entrada fica bem mais leve.
+const Painel = lazy(() => import('./Painel').then((m) => ({ default: m.Painel })));
+const Socios = lazy(() => import('./Socios').then((m) => ({ default: m.Socios })));
+const FichaSocio = lazy(() => import('./FichaSocio').then((m) => ({ default: m.FichaSocio })));
+const Mensalidades = lazy(() => import('./Mensalidades').then((m) => ({ default: m.Mensalidades })));
+const Caixa = lazy(() => import('./Caixa').then((m) => ({ default: m.Caixa })));
+const Avisos = lazy(() => import('./Avisos').then((m) => ({ default: m.Avisos })));
 const Config = lazy(() => import('./Config').then((m) => ({ default: m.Config })));
 // Telas menos usadas carregam só quando abertas.
 const Agenda = lazy(() => import('./Agenda').then((m) => ({ default: m.Agenda })));

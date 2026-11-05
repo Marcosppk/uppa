@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDados, Estado, Campo, useAcao, Icone, useToast } from '@shared/ui';
 import { api, type Usuario } from './api';
 import { PainelAcessibilidade } from '@shared/acessibilidade';
-import { SobreVersao } from '@shared/versao';
+import { SobreVersao } from '@shared/Novidades';
 
 const PLANILHA = 'https://docs.google.com/spreadsheets/d/1Y00-9TRPKGj2XAkia7sp-TdeYdnAYuBtF-rS7pi2JIM/edit?resourcekey#gid=2130497015';
 

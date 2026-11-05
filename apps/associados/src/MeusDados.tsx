@@ -5,7 +5,7 @@ import { cpfFormatado } from '@shared/formato';
 import { CATEGORIAS, rotulo } from '@shared/opcoes.js';
 import { api, type Eu } from './api';
 import { PainelAcessibilidade } from '@shared/acessibilidade';
-import { SobreVersao } from '@shared/versao';
+import { SobreVersao } from '@shared/Novidades';
 import { EditorFoto } from '@shared/Foto';
 import { Documentos } from '@shared/Documentos';
 import type { Documento } from '@shared/tipos';

@@ -1,5 +1,8 @@
 # Novidades dos apps da UPPA
 
+## 1.9.2 — 05/11/2026
+- Tela de entrada mais leve: as telas de dentro dos apps, a ficha de inscrição e o histórico de novidades carregam só quando abertos.
+
 ## 1.9.1 — 05/11/2026
 - Mais rápido: endereço sem a barra final abre direto (sem redirecionar), arquivos guardados no aparelho por 1 ano (cada versão tem nomes novos), logo 10 vezes menor (WebP) e jogos, agenda, mensagens e QR carregados só quando abertos.
 

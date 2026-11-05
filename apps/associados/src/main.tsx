@@ -5,11 +5,12 @@ import './app.css';
 import { ToastProvider, useRota, Icone, Carregando, ir } from '@shared/ui';
 import { api, type Eu } from './api';
 import { Boasvindas } from './Boasvindas';
-import { Inicio } from './Inicio';
-import { Carteirinha, Verificar } from './Carteirinha';
-import { MinhasMensalidades } from './MinhasMensalidades';
-import { MeusDados } from './MeusDados';
-// Telas menos usadas carregam só quando abertas (a primeira tela fica mais leve).
+// As telas de dentro do app carregam só quando abertas: a tela de entrada fica bem mais leve.
+const Inicio = lazy(() => import('./Inicio').then((m) => ({ default: m.Inicio })));
+const Carteirinha = lazy(() => import('./Carteirinha').then((m) => ({ default: m.Carteirinha })));
+const Verificar = lazy(() => import('./Carteirinha').then((m) => ({ default: m.Verificar })));
+const MinhasMensalidades = lazy(() => import('./MinhasMensalidades').then((m) => ({ default: m.MinhasMensalidades })));
+const MeusDados = lazy(() => import('./MeusDados').then((m) => ({ default: m.MeusDados })));
 const Sala = lazy(() => import('./acolhimento/Sala').then((m) => ({ default: m.Sala })));
 const Jogo = lazy(() => import('./acolhimento/Sala').then((m) => ({ default: m.Jogo })));
 import { AvisoNovaVersao } from '@shared/versao';
@@ -67,7 +68,12 @@ function App() {
 
   const [caminho, consulta] = rota.split('?');
   const [base, param] = caminho.split('/').filter(Boolean);
-  if (base === 'verificar') return <Verificar codigo={param ?? ''} />;
+  if (base === 'verificar')
+    return (
+      <Suspense fallback={<Carregando />}>
+        <Verificar codigo={param ?? ''} />
+      </Suspense>
+    );
 
   const entrar = (token: string, lembrar = true) => {
     api.gravarToken(token, lembrar);
