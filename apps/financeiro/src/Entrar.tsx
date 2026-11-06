@@ -12,6 +12,8 @@ export function Entrar({ aoEntrar }: { aoEntrar: (u: Usuario) => void }) {
   const [lembrar, setLembrar] = useState(memoria.lembrar);
   const [erro, setErro] = useState('');
   const [ocupado, setOcupado] = useState(false);
+  // Primeiro acesso com a senha padrão: antes de entrar, a pessoa cria a senha dela.
+  const [criarSenha, setCriarSenha] = useState(false);
 
   useEffect(() => {
     api.get<{ precisa: boolean }>('/admin/setup').then((r) => setPrimeiro(r.precisa)).catch((e) => setErro(e.message));
@@ -22,9 +24,10 @@ export function Entrar({ aoEntrar }: { aoEntrar: (u: Usuario) => void }) {
     setErro('');
     setOcupado(true);
     try {
-      const r = await api.post<{ token: string }>(primeiro ? '/admin/setup' : '/admin/login', { ...f, lembrar });
+      const r = await api.post<{ token: string; trocarSenha?: boolean }>(primeiro ? '/admin/setup' : '/admin/login', { ...f, lembrar });
       api.gravarToken(r.token, lembrar);
       memoria.salvar(lembrar, f.login);
+      if (r.trocarSenha) return setCriarSenha(true);
       aoEntrar(await api.get<Usuario>('/admin/me'));
     } catch (e) {
       setErro((e as Error).message);
@@ -32,6 +35,27 @@ export function Entrar({ aoEntrar }: { aoEntrar: (u: Usuario) => void }) {
       setOcupado(false);
     }
   }
+
+  if (criarSenha)
+    return (
+      <div className="tela-entrada">
+        <div className="cartao-entrada">
+          <div className="marca-entrada">
+            <Logo tamanho={32} /> UPPA Financeiro
+          </div>
+          <CriarSenha
+            lembrar={lembrar}
+            aoCriar={async () => aoEntrar(await api.get<Usuario>('/admin/me'))}
+            aoVoltar={() => {
+              api.post('/admin/sair').catch(() => {});
+              api.gravarToken(null);
+              setF({ ...f, senha: '' });
+              setCriarSenha(false);
+            }}
+          />
+        </div>
+      </div>
+    );
 
   return (
     <div className="tela-entrada">
@@ -81,5 +105,45 @@ export function Entrar({ aoEntrar }: { aoEntrar: (u: Usuario) => void }) {
         <span>Versão {VERSAO}</span>
       </footer>
     </div>
+  );
+}
+
+/** Troca obrigatória da senha padrão no primeiro acesso. */
+function CriarSenha({ lembrar, aoCriar, aoVoltar }: { lembrar: boolean; aoCriar: () => Promise<void>; aoVoltar: () => void }) {
+  const [f, setF] = useState({ nova: '', repetir: '' });
+  const [erro, setErro] = useState('');
+  const [ocupado, setOcupado] = useState(false);
+  async function enviar(e: FormEvent) {
+    e.preventDefault();
+    setErro('');
+    if (f.nova !== f.repetir) return setErro('As duas senhas não são iguais.');
+    setOcupado(true);
+    try {
+      await api.post('/admin/definir-senha', { nova: f.nova, lembrar });
+      await aoCriar();
+    } catch (e) {
+      setErro((e as Error).message);
+    } finally {
+      setOcupado(false);
+    }
+  }
+  return (
+    <form className="stack" onSubmit={enviar}>
+      <h1>Crie sua senha</h1>
+      <p className="subtitulo">Bem-vindo(a)! Por segurança, troque a senha padrão por uma senha só sua. Você vai usá-la com o seu usuário nas próximas vezes.</p>
+      <Campo rotulo="Nova senha" ajuda="Pelo menos 8 caracteres, diferente de 12345678.">
+        <CampoSenha value={f.nova} onChange={(e) => setF({ ...f, nova: e.target.value })} required autoComplete="new-password" autoFocus />
+      </Campo>
+      <Campo rotulo="Repita a nova senha">
+        <CampoSenha value={f.repetir} onChange={(e) => setF({ ...f, repetir: e.target.value })} required autoComplete="new-password" />
+      </Campo>
+      {erro && <div className="alert bad">{erro}</div>}
+      <button className="btn block" disabled={ocupado}>
+        Salvar senha e entrar
+      </button>
+      <button type="button" className="btn ghost block" onClick={aoVoltar}>
+        Voltar
+      </button>
+    </form>
   );
 }

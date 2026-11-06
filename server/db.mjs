@@ -124,6 +124,8 @@ for (const sql of [
   'ALTER TABLE usuarios ADD COLUMN tour_visto INTEGER NOT NULL DEFAULT 0',
   'ALTER TABLE usuarios ADD COLUMN versao_vista TEXT',
   'ALTER TABLE usuarios ADD COLUMN cargo TEXT',
+  // Primeiro acesso no Financeiro (1.15.2): entra com a senha padrão e é obrigado a criar a sua.
+  'ALTER TABLE usuarios ADD COLUMN trocar_senha INTEGER NOT NULL DEFAULT 0',
 ]) {
   try {
     db.exec(sql);

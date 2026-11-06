@@ -88,6 +88,8 @@ const exigir = (tipo) => (req, _res, next) => {
   if (tipo === 'admin') {
     req.usuario = db.prepare('SELECT id, nome, login, papel, tour_visto, versao_vista FROM usuarios WHERE id = ?').get(s.ref_id);
     if (!req.usuario) return next(erro(401, 'Usuário removido.'));
+    req.provisoria = !!s.provisoria;
+    if (req.provisoria && !['/definir-senha', '/sair'].includes(req.path)) return next(erro(403, 'Crie sua nova senha para continuar.'));
   } else {
     req.socioId = s.ref_id;
     req.provisoria = !!s.provisoria;
@@ -335,6 +337,8 @@ app.post('/api/admin/login', rota((req) => {
   const u = db.prepare('SELECT * FROM usuarios WHERE login = ?').get(login);
   if (!u || !conferirSenha(req.body?.senha ?? '', u.senha_hash)) throw erro(401, 'Usuário ou senha incorretos.');
   tentativas.delete(`admin:${req.ip}:${login}`);
+  // Primeiro acesso (cadastrado com a senha padrão): sessão curta que só serve para criar a senha própria.
+  if (u.trocar_senha) return { token: abrirSessao('admin', u.id, { provisoria: true }), trocarSenha: true };
   return { token: abrirSessao('admin', u.id, { lembrar: req.body?.lembrar !== false }) };
 }));
 
@@ -552,6 +556,15 @@ adm.post('/senha', rota((req) => {
   if (!conferirSenha(req.body?.atual ?? '', u.senha_hash)) throw erro(400, 'Senha atual incorreta.');
   if (String(req.body?.nova ?? '').length < 8) throw erro(400, 'A nova senha precisa ter pelo menos 8 caracteres.');
   db.prepare('UPDATE usuarios SET senha_hash = ? WHERE id = ?').run(hashSenha(req.body.nova), req.usuario.id);
+}));
+adm.post('/definir-senha', rota((req) => {
+  if (!req.provisoria) throw erro(409, 'Sua senha já foi criada. Use "Trocar senha" em Ajustes.');
+  const nova = String(req.body?.nova ?? '');
+  if (nova.length < 8) throw erro(400, 'A senha precisa ter pelo menos 8 caracteres.');
+  if (nova === SENHA_PADRAO) throw erro(400, 'Escolha uma senha diferente da senha padrão.');
+  db.prepare('UPDATE usuarios SET senha_hash = ?, trocar_senha = 0 WHERE id = ?').run(hashSenha(nova), req.usuario.id);
+  const lembrar = req.body?.lembrar !== false;
+  db.prepare('UPDATE sessoes SET provisoria = 0, expira_em = ? WHERE token = ?').run(new Date(Date.now() + (lembrar ? DIAS_SESSAO * 864e5 : 12 * 3600e3)).toISOString(), req.token);
 }));
 
 // ---- Importar / exportar ----

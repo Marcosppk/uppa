@@ -2,6 +2,9 @@
 
 <!-- Itens com [Financeiro] ou [Associados] aparecem só naquele app; sem marca, nos dois. -->
 
+## 1.15.2 — 06/11/2026
+- [Financeiro] Primeiro acesso da equipe: quem foi cadastrado com a senha padrão (12345678) entra com ela e o app pede na hora para criar uma senha própria, antes de mostrar qualquer dado.
+
 ## 1.15.1 — 06/11/2026
 - Os apps abrem mais rápido para quem já está conectado: os dados e a tela inicial chegam juntos, em vez de um depois do outro (cerca de metade do tempo de espera).
 - Buscas no banco de dados preparadas para continuar rápidas conforme a associação cresce.
