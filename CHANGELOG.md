@@ -2,6 +2,11 @@
 
 <!-- Itens com [Financeiro] ou [Associados] aparecem só naquele app; sem marca, nos dois. -->
 
+## 1.15.0 — 06/11/2026
+- [Associados] Sala de acolhimento com ilustrações novas: cada jogo tem a sua figura no cartão de entrada.
+- [Associados] Os cartões reagem com calma, do mesmo jeito em todos: sobem um pouquinho ao apontar e "afundam" ao tocar antes de abrir. Nada se mexe sozinho.
+- [Associados] Com o som ligado, cada cartão toca sempre a mesma nota suave. Com "Menos animações" ou alto contraste, os cartões não se mexem; no tema escuro, as figuras ficam menos brilhantes.
+
 ## 1.14.0 — 05/11/2026
 - [Financeiro] Crachá de identificação para a equipe (presidência, diretoria, tesouraria): foto, nome, cargo e QR Code. Abra clicando no seu nome no menu ou em Ajustes → Pessoas com acesso → Crachá.
 - [Financeiro] Imprime no tamanho de crachá (5,4 × 8,6 cm) com linha de recorte, ou salva em PDF.
