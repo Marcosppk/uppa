@@ -2,6 +2,10 @@
 
 <!-- Itens com [Financeiro] ou [Associados] aparecem só naquele app; sem marca, nos dois. -->
 
+## 1.15.1 — 06/11/2026
+- Os apps abrem mais rápido para quem já está conectado: os dados e a tela inicial chegam juntos, em vez de um depois do outro (cerca de metade do tempo de espera).
+- Buscas no banco de dados preparadas para continuar rápidas conforme a associação cresce.
+
 ## 1.15.0 — 06/11/2026
 - [Associados] Sala de acolhimento com ilustrações novas: cada jogo tem a sua figura no cartão de entrada.
 - [Associados] Os cartões reagem com calma, do mesmo jeito em todos: sobem um pouquinho ao apontar e "afundam" ao tocar antes de abrir. Nada se mexe sozinho.

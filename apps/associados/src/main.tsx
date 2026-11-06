@@ -27,6 +27,15 @@ aplicarPreferencias();
 // Aberto como "/associados" (sem a barra): acerta o endereço sem recarregar — os links "#/…" contam com a barra.
 if (location.pathname === '/associados') history.replaceState(null, '', `/associados/${location.search}${location.hash}`);
 aplicarCampanha(true);
+// Já logado: busca os dados e baixa a tela inicial ao mesmo tempo, em vez de um depois do outro.
+if (api.token()) {
+  api.adiantar('/associado/me');
+  if (!location.hash.replace(/^#\/?/, '').split(/[/?]/)[0]) {
+    void import('./Inicio');
+    api.adiantar('/associado/avisos');
+    api.adiantar('/associado/agenda/proximos');
+  }
+}
 
 const MENU = [
   { r: '/', ico: 'inicio', t: 'Início' },
@@ -63,8 +72,9 @@ function App() {
         setEu(e);
       })
       .catch((e) => {
-        // Sessão do primeiro acesso sem a senha trocada: volta para o login.
-        if (e.status === 403) {
+        // Sessão do primeiro acesso sem a senha trocada, ou acesso vencido (a busca adiantada pode
+        // responder antes de a tela estar ouvindo o "uppa-sair"): volta para o login.
+        if (e.status === 403 || e.status === 401) {
           api.gravarToken(null);
           setLogado(false);
         } else setErro(e.message);

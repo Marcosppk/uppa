@@ -31,6 +31,15 @@ if (location.pathname === '/financeiro') history.replaceState(null, '', `/financ
 const campanhaLigada = () => api.get<{ campanhas: boolean }>('/publico/config').then((c) => aplicarCampanha(c.campanhas)).catch(() => aplicarCampanha(true));
 aplicarCampanha(true);
 campanhaLigada();
+// Já logado: busca os dados e baixa o painel ao mesmo tempo, em vez de um depois do outro.
+if (api.token()) {
+  api.adiantar('/admin/me');
+  if (!location.hash.replace(/^#\/?/, '').split(/[/?]/)[0]) {
+    void import('./Painel');
+    api.adiantar('/admin/painel');
+    api.adiantar('/admin/aniversariantes?dias=7');
+  }
+}
 
 const MENU = [
   { r: '/', ico: 'inicio', t: 'Painel' },

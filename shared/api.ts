@@ -62,10 +62,24 @@ export function criarApi(chaveToken: string, aoExpirar: () => void) {
     return dados as T;
   }
 
+  // Buscas adiantadas na abertura do app: a tela que pedir o mesmo caminho logo depois recebe a resposta já a caminho.
+  const adiantadas = new Map<string, { quando: number; promessa: Promise<unknown> }>();
+
   return {
     token: lerToken,
     gravarToken,
-    get: <T>(c: string) => pedir<T>('GET', c),
+    get: <T>(c: string) => {
+      const a = adiantadas.get(c);
+      adiantadas.delete(c);
+      if (a && Date.now() - a.quando < 15000) return a.promessa as Promise<T>;
+      return pedir<T>('GET', c);
+    },
+    /** Começa um GET agora para ser usado (uma vez) pela tela que vai abrir; vale por 15 s. */
+    adiantar(c: string) {
+      const promessa = pedir('GET', c);
+      promessa.catch(() => {}); // o erro aparece para quem usar a resposta, não aqui
+      adiantadas.set(c, { quando: Date.now(), promessa });
+    },
     post: <T>(c: string, b: unknown = {}) => pedir<T>('POST', c, b),
     put: <T>(c: string, b: unknown) => pedir<T>('PUT', c, b),
     del: <T>(c: string) => pedir<T>('DELETE', c),

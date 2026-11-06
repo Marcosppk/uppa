@@ -208,6 +208,12 @@ CREATE TABLE IF NOT EXISTS mensagens (
   lida_em TEXT
 );
 CREATE INDEX IF NOT EXISTS mensagens_socio ON mensagens (socio_id, criado_em);
+-- Buscas por sócio, aviso, mês e data não varrem a tabela inteira (e apagar um sócio fica rápido).
+CREATE INDEX IF NOT EXISTS autistas_socio ON autistas (socio_id);
+CREATE INDEX IF NOT EXISTS documentos_socio ON socio_documentos (socio_id);
+CREATE INDEX IF NOT EXISTS anexos_aviso ON aviso_anexos (aviso_id);
+CREATE INDEX IF NOT EXISTS mensalidades_competencia ON mensalidades (competencia);
+CREATE INDEX IF NOT EXISTS lancamentos_data ON lancamentos (data);
 `);
 
 const padrao = {
