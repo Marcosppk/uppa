@@ -30,11 +30,16 @@ function fotoUsuario(id) {
   return `/api/publico/foto-usuario/${id}/${v}/${hmac(`fotou:${id}:${v}`, 22)}`;
 }
 const cargoDe = (u) => (u.cargo && u.cargo.trim()) || CARGO_PADRAO[u.papel] || 'Equipe';
+/** No crachá vai só o primeiro e o último nome ("Sharinne Allanne de Jesus Aver" → "Sharinne Aver"). */
+export const nomeCracha = (nome) => {
+  const p = String(nome ?? '').trim().split(/\s+/).filter(Boolean);
+  return p.length > 1 ? `${p[0]} ${p[p.length - 1]}` : p.join('');
+};
 
 function dadosCracha(id) {
   const u = db.prepare('SELECT id, nome, papel, cargo FROM usuarios WHERE id = ?').get(id);
   if (!u) throw erro(404, 'Usuário não encontrado.');
-  return { id: u.id, nome: u.nome, papel: u.papel, cargo: cargoDe(u), cargo_proprio: u.cargo ?? '', foto: fotoUsuario(u.id), codigo: codigoCracha(u.id) };
+  return { id: u.id, nome: nomeCracha(u.nome), papel: u.papel, cargo: cargoDe(u), cargo_proprio: u.cargo ?? '', foto: fotoUsuario(u.id), codigo: codigoCracha(u.id) };
 }
 
 export function rotasCracha({ app, adm, rota, segredo: s, podeTudo }) {
@@ -59,7 +64,7 @@ export function rotasCracha({ app, adm, rota, segredo: s, podeTudo }) {
   app.get('/api/publico/cracha/:codigo', rota((req) => {
     const u = db.prepare('SELECT id, nome, papel, cargo FROM usuarios').all().find((x) => codigoCracha(x.id) === req.params.codigo);
     if (!u) throw erro(404, 'Crachá não reconhecido. A pessoa pode não fazer mais parte da equipe da UPPA.');
-    return { nome: u.nome, cargo: cargoDe(u), foto: fotoUsuario(u.id) };
+    return { nome: nomeCracha(u.nome), cargo: cargoDe(u), foto: fotoUsuario(u.id) };
   }));
 
   // ---- Equipe ----

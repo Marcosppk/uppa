@@ -2,6 +2,9 @@
 
 <!-- Itens com [Financeiro] ou [Associados] aparecem só naquele app; sem marca, nos dois. -->
 
+## 1.15.3 — 06/11/2026
+- [Financeiro] O crachá mostra só o primeiro e o último nome da pessoa (ex.: "Sharinne Avero"), também na conferência pelo QR Code.
+
 ## 1.15.2 — 06/11/2026
 - [Financeiro] Primeiro acesso da equipe: quem foi cadastrado com a senha padrão (12345678) entra com ela e o app pede na hora para criar uma senha própria, antes de mostrar qualquer dado.
 
