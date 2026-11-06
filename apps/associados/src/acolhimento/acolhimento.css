@@ -3,15 +3,54 @@
 .sala-topo h1 { margin: 0 0 4px; font-size: 1.45rem; }
 .sala-topo p { margin: 0; }
 .sala-topo .btn, .ativ-topo .btn { white-space: nowrap; flex-shrink: 0; }
-.sala-grade { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+/* Cards com ilustração. Reação suave e previsível (pensada para crianças autistas):
+   - nada se mexe sozinho: só reage quando a criança aponta, foca ou toca (sem brilho, pulsar ou autoplay);
+   - reação pequena, lenta e igual em todos os cards: sobe 3px e a figura aproxima 3%;
+   - ao tocar, o card "afunda" um instante antes de abrir, para a criança ver que funcionou;
+   - foco de teclado/acionador bem visível, na cor do próprio card;
+   - "Menos animações" (do app ou do aparelho): sem movimento, só a borda muda de cor;
+   - modo escuro: a figura fica um pouco menos brilhante para não ofuscar. */
+.sala-grade { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(156px, 1fr)); }
 .sala-card {
-  display: grid; gap: 4px; align-content: start; padding: 16px; border-radius: 18px; text-decoration: none; color: var(--ink);
-  background: color-mix(in srgb, var(--cor) 16%, var(--surface)); border: 1px solid color-mix(in srgb, var(--cor) 35%, var(--line));
-  min-height: 140px; transition: transform .15s;
+  display: grid; grid-template-rows: auto auto 1fr; gap: 3px; padding: 8px 8px 14px; border-radius: 20px;
+  text-decoration: none; color: var(--ink); user-select: none; -webkit-user-select: none; touch-action: manipulation;
+  background: color-mix(in srgb, var(--cor) 12%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--cor) 32%, var(--line));
+  box-shadow: 0 1px 2px rgb(16 24 40 / 4%);
+  transition: transform .35s cubic-bezier(.2, .7, .3, 1), box-shadow .35s ease, border-color .35s ease;
 }
-.sala-card:active { transform: scale(.97); }
-.sala-card b { font-size: 1.05rem; }
-.sala-emoji { font-size: 2.4rem; line-height: 1.1; }
+.sala-arte {
+  display: block; aspect-ratio: 1; margin-bottom: 7px; border-radius: 14px; overflow: hidden;
+  background: color-mix(in srgb, var(--cor) 22%, var(--surface));
+}
+.sala-arte img {
+  display: block; width: 100%; height: 100%; object-fit: cover; -webkit-user-drag: none;
+  transition: transform .6s cubic-bezier(.2, .7, .3, 1), filter .35s ease;
+}
+.sala-card b { padding: 0 6px; font-size: 1.05rem; line-height: 1.25; }
+.sala-card .small { padding: 0 6px; line-height: 1.4; }
+@media (hover: hover) and (pointer: fine) {
+  .sala-card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--cor) 60%, var(--line));
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--cor) 20%, transparent);
+  }
+  .sala-card:hover .sala-arte img { transform: scale(1.03); }
+}
+.sala-card:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--cor) 55%, var(--ink)); outline-offset: 3px;
+  border-color: color-mix(in srgb, var(--cor) 60%, var(--line));
+}
+.sala-card:active, .sala-card.tocado {
+  transform: scale(.97); transition-duration: .12s;
+  border-color: color-mix(in srgb, var(--cor) 70%, var(--line));
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--cor) 45%, transparent);
+}
+.sala-card:active .sala-arte img, .sala-card.tocado .sala-arte img { transform: scale(1); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .sala-arte img { filter: brightness(.86) saturate(.9); } }
+:root[data-contraste='alto'] .sala-card { border: 2px solid var(--line); }
+:root[data-contraste='alto'] .sala-card:focus-visible { outline-color: var(--ink); }
+:root[data-movimento='reduzido'] .sala-card, :root[data-movimento='reduzido'] .sala-arte img { transform: none !important; }
 details summary { cursor: pointer; }
 details ul { padding-left: 18px; display: grid; gap: 6px; }
 
@@ -128,6 +167,7 @@ details ul { padding-left: 18px; display: grid; gap: 6px; }
 @keyframes piscar { 50% { box-shadow: 0 0 0 4px var(--ink), 0 0 24px var(--cor); } }
 
 @media (prefers-reduced-motion: reduce) {
+  .sala-card, .sala-card:hover, .sala-card:active, .sala-card.tocado, .sala-card .sala-arte img { transform: none !important; }
   .bolha { animation: none; }
   .tecla.proxima { animation: none; box-shadow: 0 0 0 4px var(--ink); }
   .mem-carta > span { transition: none; }
