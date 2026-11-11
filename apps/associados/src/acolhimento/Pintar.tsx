@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { salvarArquivo } from '@shared/arquivo';
 
 const CORES = ['#12283b', '#e5484d', '#f76b15', '#f5c400', '#30a46c', '#12a594', '#3e7bfa', '#8e4ec6', '#d6409f', '#8d5a3b', '#9aa5b1'];
 const TAMANHOS = [6, 14, 28];
@@ -89,12 +90,7 @@ export function Pintar() {
     setPodeDesfazer(historico.current.length > 0);
   };
 
-  const salvar = () => {
-    const a = document.createElement('a');
-    a.download = 'desenho-uppa.png';
-    a.href = tela.current!.toDataURL('image/png');
-    a.click();
-  };
+  const salvar = () => tela.current!.toBlob((b) => b && salvarArquivo(b, 'desenho-uppa.png').catch(() => {}), 'image/png');
 
   return (
     <div className="pintar">

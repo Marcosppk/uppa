@@ -9,6 +9,8 @@ import { SobreVersao } from '@shared/Novidades';
 import { EditorFoto } from '@shared/Foto';
 import { Documentos } from '@shared/Documentos';
 import type { Documento } from '@shared/tipos';
+import { ORIGEM_SERVIDOR } from '@shared/api';
+import { lembrarLogin } from '@shared/lembrar';
 
 export function MeusDados({ eu, aoMudar, aoSair }: { eu: Eu; aoMudar: () => void; aoSair: () => void }) {
   const [d, setD] = useState<DadosSocio>(eu.socio);
@@ -71,6 +73,63 @@ export function MeusDados({ eu, aoMudar, aoSair }: { eu: Eu; aoMudar: () => void
         <PainelAcessibilidade />
         <SobreVersao aoRefazerTour={() => window.dispatchEvent(new Event('uppa-tour'))} />
       </div>
+      <ExcluirConta aoExcluir={aoSair} />
     </>
+  );
+}
+
+/** O sócio apaga a própria conta. Pede a senha e uma confirmação, porque não dá para desfazer. */
+function ExcluirConta({ aoExcluir }: { aoExcluir: () => void }) {
+  const [aberto, setAberto] = useState(false);
+  const [senha, setSenha] = useState('');
+  const [certeza, setCerteza] = useState(false);
+  const { ocupado, rodar } = useAcao();
+
+  return (
+    <section className="card stack" style={{ marginTop: 16 }} aria-labelledby="titulo-excluir">
+      <h2 id="titulo-excluir">Excluir minha conta</h2>
+      <p className="muted small" style={{ margin: 0 }}>
+        Apaga sua ficha de sócio, a família cadastrada, as mensalidades, a foto, os documentos e as mensagens. Os valores que você já pagou continuam no caixa da
+        UPPA, sem o seu nome. Não dá para desfazer: para voltar, será preciso fazer uma nova inscrição.{' '}
+        <a href={`${ORIGEM_SERVIDOR}/privacidade`} target="_blank" rel="noreferrer">
+          Política de privacidade
+        </a>
+      </p>
+      {!aberto ? (
+        <div>
+          <button className="btn ghost sm" onClick={() => setAberto(true)}>
+            Quero excluir minha conta
+          </button>
+        </div>
+      ) : (
+        <form
+          className="stack"
+          onSubmit={(e) => {
+            e.preventDefault();
+            rodar(() => api.post('/associado/excluir-conta', { senha }), 'Sua conta foi excluída.').then((ok) => {
+              if (!ok) return;
+              lembrarLogin('uppa-associados').salvar(false, '');
+              aoExcluir();
+            });
+          }}
+        >
+          <Campo rotulo="Sua senha">
+            <CampoSenha value={senha} onChange={(e) => setSenha(e.target.value)} required autoComplete="current-password" />
+          </Campo>
+          <label className="row" style={{ gap: 8, alignItems: 'flex-start' }}>
+            <input type="checkbox" checked={certeza} onChange={(e) => setCerteza(e.target.checked)} />
+            <span>Entendo que meus dados serão apagados e que isso não pode ser desfeito.</span>
+          </label>
+          <div className="row" style={{ gap: 8 }}>
+            <button className="btn danger" disabled={ocupado || !certeza || !senha}>
+              {ocupado ? 'Excluindo…' : 'Excluir minha conta'}
+            </button>
+            <button type="button" className="btn ghost" onClick={() => (setAberto(false), setSenha(''), setCerteza(false))}>
+              Cancelar
+            </button>
+          </div>
+        </form>
+      )}
+    </section>
   );
 }

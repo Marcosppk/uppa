@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Campo, CampoSenha, Logo, useAcao } from '@shared/ui';
 import { FormSocio, type DadosSocio } from '@shared/FormSocio';
 import { api } from './api';
+import { ORIGEM_SERVIDOR } from '@shared/api';
 
 /** Ficha de inscrição de quem quer se associar (também aberta pelo link de cadastro). */
 export function Inscricao({ voltar, convite, aoEnviar }: { voltar: React.ReactNode; convite?: string; aoEnviar: (token: string | null) => void }) {
@@ -61,6 +62,13 @@ export function Inscricao({ voltar, convite, aoEnviar }: { voltar: React.ReactNo
         </Campo>
       </fieldset>
       {erro && <div className="alert bad">{erro}</div>}
+      <p className="muted small" style={{ margin: 0 }}>
+        Ao enviar, você concorda com o uso dos seus dados descrito na{' '}
+        <a href={`${ORIGEM_SERVIDOR}/privacidade`} target="_blank" rel="noreferrer">
+          política de privacidade
+        </a>
+        .
+      </p>
       <button className="btn block" disabled={ocupado}>
         Enviar inscrição
       </button>

@@ -7,6 +7,9 @@ $versao = (Get-Content -LiteralPath "$projeto\package.json" -Raw | ConvertFrom-J
 
 Push-Location $projeto
 try {
+  # Instala o que estiver faltando (pacotes novos do package.json) antes de compilar.
+  npm install --no-audit --no-fund
+  if ($LASTEXITCODE) { throw 'Não foi possível instalar os pacotes; nada foi publicado.' }
   npm run build
   if ($LASTEXITCODE) { throw 'A compilação falhou; nada foi publicado.' }
 } finally { Pop-Location }

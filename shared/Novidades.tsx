@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import historico from '../CHANGELOG.md?raw';
 import { VERSAO } from './versao';
 import { Modal } from './ui';
+import { ORIGEM_SERVIDOR } from './api';
 
 const APP = (document.documentElement.dataset.app ?? '').toLowerCase();
 
@@ -106,6 +107,9 @@ export function SobreVersao({ aoRefazerTour }: { aoRefazerTour?: () => void }) {
             Fazer o tour do app de novo
           </button>
         )}
+        <a className="btn ghost sm" href={`${ORIGEM_SERVIDOR}/privacidade`} target="_blank" rel="noreferrer">
+          Política de privacidade
+        </a>
       </div>
     </div>
   );

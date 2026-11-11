@@ -19,6 +19,7 @@ import { rotasMensagens, naoLidasDoSocio, naoLidasDaDiretoria } from './mensagen
 import { comemoracoesDoSocio, aniversariantes, datasDaCausa, iniciarRotinaDoDia } from './datas.mjs';
 import { CATEGORIAS, RENDAS, rotulo } from '../shared/opcoes.js';
 import { rotasCracha } from './cracha.mjs';
+import { paginaPrivacidade, paginaSuporte } from './privacidade.mjs';
 
 const PORTA = Number(process.env.PORT || 3333);
 const DIAS_SESSAO = 30;
@@ -167,6 +168,9 @@ function estornar(mensalidadeId) {
 // Versão do servidor (package.json): os apps comparam com a deles e oferecem atualizar.
 const VERSAO = JSON.parse(fs.readFileSync(path.resolve('package.json'), 'utf8')).version;
 app.get('/api/saude', (_req, res) => res.json({ ok: true, versao: VERSAO }));
+// Política de privacidade e ajuda: endereços públicos exigidos pelas lojas de apps (App Store e Google Play).
+app.get('/privacidade', (_req, res) => res.type('html').send(paginaPrivacidade(lerConfig())));
+app.get('/suporte', (_req, res) => res.type('html').send(paginaSuporte(lerConfig())));
 
 app.get('/api/publico/config', rota(() => {
   const c = lerConfig();
@@ -309,6 +313,20 @@ assoc.get('/convite', rota((req) => {
 assoc.get('/avisos', rota(() => comAnexos(db.prepare('SELECT id, titulo, texto, criado_em FROM avisos WHERE publicado = 1 ORDER BY criado_em DESC LIMIT 50').all())));
 
 assoc.post('/sair', rota((req) => { db.prepare('DELETE FROM sessoes WHERE token = ?').run(req.token); }));
+
+// O próprio sócio exclui a conta (exigência da Apple e direito do titular pela LGPD). Igual a "Excluir sócio" no
+// Financeiro: some a ficha com família, mensalidades, foto, documentos e mensagens; o caixa continua, sem o nome.
+assoc.post('/excluir-conta', rota((req) => {
+  const s = db.prepare('SELECT senha_hash FROM socios WHERE id = ?').get(req.socioId);
+  if (!s?.senha_hash || !conferirSenha(String(req.body?.senha ?? ''), s.senha_hash)) throw erro(400, 'Senha incorreta.');
+  transacao(() => {
+    db.prepare("DELETE FROM sessoes WHERE tipo = 'socio' AND ref_id = ?").run(req.socioId);
+    db.prepare("DELETE FROM convites WHERE tipo = 'socio' AND ref_id = ?").run(req.socioId);
+    // "Mensalidade 11/2026 — Fulana" vira "Mensalidade 11/2026": a política de privacidade promete o caixa sem o nome.
+    db.prepare("UPDATE lancamentos SET descricao = substr(descricao, 1, instr(descricao, ' — ') - 1) WHERE socio_id = ? AND categoria = 'Mensalidade' AND instr(descricao, ' — ') > 0").run(req.socioId);
+    db.prepare('DELETE FROM socios WHERE id = ?').run(req.socioId);
+  });
+}));
 assoc.post('/visto', rota((req) => marcarVisto('socios', req.socioId, req.body)));
 
 app.use('/api/associado', assoc);
@@ -435,7 +453,11 @@ adm.post('/socios/:id/redefinir-senha', rota((req) => {
 }));
 
 adm.delete('/socios/:id', soAdmin, rota((req) => {
-  db.prepare('DELETE FROM socios WHERE id = ?').run(req.params.id);
+  // Igual à exclusão feita pelo próprio sócio: o caixa continua, sem o nome na descrição das mensalidades.
+  transacao(() => {
+    db.prepare("UPDATE lancamentos SET descricao = substr(descricao, 1, instr(descricao, ' — ') - 1) WHERE socio_id = ? AND categoria = 'Mensalidade' AND instr(descricao, ' — ') > 0").run(req.params.id);
+    db.prepare('DELETE FROM socios WHERE id = ?').run(req.params.id);
+  });
 }));
 
 // ---- Mensalidades ----
@@ -631,6 +653,13 @@ for (const nome of ['financeiro', 'associados']) {
     app.use(`/${nome}`, express.static(pasta, { maxAge: '1d', setHeaders: (res, arquivo) => arquivo.endsWith('.html') && res.setHeader('Cache-Control', 'no-cache') }));
   }
 }
+// Subdomínio com o nome do app (associados.upparoraima.com, financeiro.upparoraima.com): a raiz abre direto o app.
+const APPS = ['associados', 'financeiro'];
+app.get('/', (req, res, next) => {
+  const sub = req.hostname.split('.')[0];
+  if (APPS.includes(sub)) return res.redirect(302, `/${sub}/`);
+  next();
+});
 app.get('/', (_req, res) =>
   res.type('html').send(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>UPPA</title>
 <style>body{font-family:system-ui,sans-serif;background:#f4f7fb;color:#13293d;display:grid;place-items:center;min-height:100vh;margin:0}main{text-align:center;padding:24px}a{display:block;margin:12px auto;padding:16px 24px;border-radius:14px;background:#1f6fb2;color:#fff;text-decoration:none;font-weight:600;max-width:280px}a.b{background:#2a9d8f}</style>

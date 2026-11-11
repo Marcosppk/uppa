@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDados, Estado, Campo, Logo, Icone, useAcao } from '@shared/ui';
 import { EditorFoto } from '@shared/Foto';
-import { urlApi } from '@shared/api';
+import { urlApi, ORIGEM_SERVIDOR } from '@shared/api';
 import { useQr } from '@shared/useQr';
+import { appNativo } from '@shared/arquivo';
 import { api, nomePapel, podeTudo, type Usuario } from './api';
 
 export interface DadosCracha {
@@ -19,7 +20,7 @@ export interface DadosCracha {
 }
 
 /** Endereço público que o QR abre (a página fica no app dos sócios, que não exige login). */
-export const linkVerificacao = (codigo: string) => `${location.origin}/associados/#/cracha/${codigo}`;
+export const linkVerificacao = (codigo: string) => `${ORIGEM_SERVIDOR}/associados/#/cracha/${codigo}`;
 
 const iniciais = (nome: string) =>
   nome
@@ -131,11 +132,18 @@ export function Cracha({ usuario, id }: { usuario: Usuario; id?: number }) {
             <p className="muted small" style={{ margin: 0 }}>
               Sai no tamanho de crachá (5,4 × 8,6 cm), com linha para recortar. Para guardar no celular, escolha "Salvar como PDF" na impressão.
             </p>
-            <div>
-              <button className="btn" onClick={imprimir} disabled={!qr}>
-                Imprimir crachá
-              </button>
-            </div>
+            {appNativo ? (
+              // Dentro do app instalado o celular não abre a janela de impressão: imprime-se pelo navegador.
+              <p className="small" style={{ margin: 0 }}>
+                Para imprimir, abra o UPPA Financeiro no navegador do computador ou do celular.
+              </p>
+            ) : (
+              <div>
+                <button className="btn" onClick={imprimir} disabled={!qr}>
+                  Imprimir crachá
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

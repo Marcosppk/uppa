@@ -1,6 +1,6 @@
 {
   "name": "uppa",
-  "version": "1.15.3",
+  "version": "1.16.0",
   "private": true,
   "type": "module",
   "description": "UPPA — União de Pais e Pessoas Autistas: apps UPPA Financeiro e UPPA Associados integrados",
@@ -13,9 +13,9 @@
     "build:associados": "vite build --config apps/associados/vite.config.ts",
     "build": "tsc --noEmit && npm run build:financeiro && npm run build:associados",
     "app:financeiro:android": "npm run build:financeiro && cd apps/financeiro && npx cap add android && npx cap sync android",
-    "app:financeiro:ios": "npm run build:financeiro && cd apps/financeiro && npx cap add ios && npx cap sync ios",
+    "app:financeiro:ios": "npm run build:financeiro && node scripts/preparar-ios.mjs financeiro",
     "app:associados:android": "npm run build:associados && cd apps/associados && npx cap add android && npx cap sync android",
-    "app:associados:ios": "npm run build:associados && cd apps/associados && npx cap add ios && npx cap sync ios"
+    "app:associados:ios": "npm run build:associados && node scripts/preparar-ios.mjs associados"
   },
   "dependencies": {
     "@capacitor/core": "^8.6.0",
@@ -27,6 +27,9 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^8.6.0",
+    "@capacitor/filesystem": "^8.1.5",
+    "@capacitor/ios": "^8.6.0",
+    "@capacitor/share": "^8.0.3",
     "@types/node": "^26.6.6",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.3.0",

@@ -288,13 +288,19 @@ O `render.yaml` publica no Render com um **disco persistente**, que é o plano p
 
 ## Apps de celular (Android / iOS)
 
-Os dois apps também funcionam como PWA: dá para abrir no navegador do celular e usar *Adicionar à tela inicial*. Para gerar os apps nativos com o Capacitor:
+Os dois apps também funcionam como PWA: dá para abrir no navegador do celular e usar *Adicionar à tela inicial*.
+
+**iPhone (App Store):** os apps são compilados na nuvem pelo Codemagic (`codemagic.yaml`), sem precisar de Mac. O passo a passo completo, da conta da Apple ao envio para revisão, está em **[PUBLICAR-APP-STORE.md](PUBLICAR-APP-STORE.md)**. Num Mac com Xcode 26, `npm run app:associados:ios` (ou `app:financeiro:ios`) gera o projeto em `apps/<app>/ios` com ícone, permissões e versão já ajustados (`scripts/preparar-ios.mjs`).
+
+**Android:** com o Capacitor,
 
 ```bash
 VITE_API_URL=https://endereco-do-servidor VITE_PUBLIC_URL=https://endereco-do-servidor/associados npm run app:associados:android
 ```
 
-O comando cria `apps/associados/android`, que você abre no Android Studio. O equivalente para iOS é `app:associados:ios`, que precisa do Xcode num Mac. Para o Financeiro, use `app:financeiro:android` e `app:financeiro:ios`. Os identificadores são `br.org.uppa.associados` e `br.org.uppa.financeiro`.
+O comando cria `apps/associados/android`, que você abre no Android Studio (antes, instale o pacote `@capacitor/android`). Para o Financeiro, use `app:financeiro:android`. Os identificadores são `br.org.uppa.associados` e `br.org.uppa.financeiro`.
+
+Dentro do app instalado, o que seria "baixar arquivo" no navegador (planilha CSV, cópia do banco, evento para a agenda, desenho) abre a opção de compartilhar do celular, de onde dá para salvar em Arquivos ou mandar por WhatsApp. A impressão do crachá só funciona pelo navegador.
 
 ## Estrutura
 
@@ -311,4 +317,6 @@ O cadastro tem CPF, endereço e informações de saúde (autismo, BPC). Siga est
 
 - Dê acesso ao Financeiro só a quem precisa. Cada pessoa usa o próprio usuário.
 - Publique sempre com **HTTPS**.
+- A política de privacidade fica em `/privacidade` no servidor (texto em `server/privacidade.mjs`). Se o sistema passar a guardar ou compartilhar outros dados, atualize o texto e a data.
+- O sócio pode excluir a própria conta em **Meus dados → Excluir minha conta** (exigência da App Store). Isso apaga a ficha, a família, as mensalidades, a foto, os documentos e as mensagens. Os lançamentos do caixa ficam, sem o nome. É o mesmo que "Excluir sócio" no Financeiro.
 - A planilha do Google está aberta para "qualquer pessoa com o link". Depois da importação, vale restringir o compartilhamento. Se fizer isso, importe por arquivo CSV (Arquivo → Fazer download → .csv).

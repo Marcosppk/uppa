@@ -1,0 +1,81 @@
+# Compilação dos apps de iPhone na nuvem (Codemagic), sem precisar de um Mac.
+# Passo a passo completo em PUBLICAR-APP-STORE.md.
+#
+# Cada app tem o seu fluxo. Para gerar uma versão: Codemagic → o app → Start new build → escolha o fluxo.
+# A compilação envia o app direto para o App Store Connect (aparece no TestFlight em uns 15 minutos).
+#
+# Antes da primeira compilação, no Codemagic (Team settings):
+#   - Integrations → Developer Portal → chave da API do App Store Connect com o nome "UPPA"
+#   - codemagic.yaml settings → Code signing identities → certificado "Apple Distribution" e os perfis
+#     br.org.uppa.associados e br.org.uppa.financeiro (o Codemagic gera e busca tudo pela chave acima)
+
+definitions:
+  ambiente: &ambiente
+    xcode: latest # a Apple exige Xcode 26 ou mais novo
+    node: 22
+    vars:
+      # Endereço do servidor da UPPA na internet: os apps instalados falam com ele.
+      VITE_API_URL: https://uppa.puxaiapp.com.br
+      VITE_PUBLIC_URL: https://uppa.puxaiapp.com.br/associados
+  publicar: &publicar
+    app_store_connect:
+      auth: integration
+      submit_to_testflight: false # testes internos no TestFlight não precisam disso
+      submit_to_app_store: false # o envio para revisão é feito à mão no App Store Connect
+
+workflows:
+  ios-associados:
+    name: iPhone — UPPA Associados
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: UPPA
+    environment:
+      <<: *ambiente
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: br.org.uppa.associados
+    scripts:
+      - name: Instalar dependências
+        script: npm ci
+      - name: Conferir os tipos e compilar o app
+        script: npm run typecheck && npm run build:associados
+      - name: Preparar o projeto do iPhone
+        script: node scripts/preparar-ios.mjs associados
+      - name: Assinatura
+        script: xcode-project use-profiles
+      - name: Gerar o .ipa
+        script: xcode-project build-ipa --project apps/associados/ios/App/App.xcodeproj --scheme App
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      <<: *publicar
+
+  ios-financeiro:
+    name: iPhone — UPPA Financeiro
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: UPPA
+    environment:
+      <<: *ambiente
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: br.org.uppa.financeiro
+    scripts:
+      - name: Instalar dependências
+        script: npm ci
+      - name: Conferir os tipos e compilar o app
+        script: npm run typecheck && npm run build:financeiro
+      - name: Preparar o projeto do iPhone
+        script: node scripts/preparar-ios.mjs financeiro
+      - name: Assinatura
+        script: xcode-project use-profiles
+      - name: Gerar o .ipa
+        script: xcode-project build-ipa --project apps/financeiro/ios/App/App.xcodeproj --scheme App
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      <<: *publicar

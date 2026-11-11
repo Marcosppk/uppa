@@ -1,9 +1,14 @@
 // Cliente da API usado pelos dois apps. No navegador a API fica no mesmo endereço;
 // no app nativo (Capacitor) o endereço do servidor vem de VITE_API_URL.
+import { salvarArquivo } from './arquivo';
+
 const BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
 
 /** Endereço completo de um caminho devolvido pela API (ex.: anexos), também no app nativo. */
 export const urlApi = (caminho: string) => `${BASE}${caminho}`;
+
+/** Endereço do servidor na internet (para links e QR Codes). No app nativo a página não tem um endereço de site. */
+export const ORIGEM_SERVIDOR = BASE || location.origin;
 
 export class ErroApi extends Error {
   constructor(public status: number, mensagem: string) {
@@ -90,10 +95,7 @@ export function criarApi(chaveToken: string, aoExpirar: () => void) {
     async baixar(caminho: string, nome: string) {
       const resp = await fetch(`${BASE}/api${caminho}`, { headers: { Authorization: `Bearer ${lerToken()}` } });
       if (!resp.ok) throw new ErroApi(resp.status, 'Não foi possível baixar o arquivo.');
-      const url = URL.createObjectURL(await resp.blob());
-      const a = Object.assign(document.createElement('a'), { href: url, download: nome });
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      await salvarArquivo(await resp.blob(), nome);
     },
   };
 }

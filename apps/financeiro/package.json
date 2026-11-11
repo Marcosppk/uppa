@@ -1,0 +1,12 @@
+{
+  "name": "uppa-financeiro",
+  "private": true,
+  "type": "module",
+  "description": "Pasta do app nativo (Capacitor). O Capacitor só roda numa pasta com package.json e procura aqui os plugins nativos; os pacotes são instalados pelo package.json da raiz (npm install lá), com as mesmas versões.",
+  "dependencies": {
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/filesystem": "^8.1.5",
+    "@capacitor/ios": "^8.6.0",
+    "@capacitor/share": "^8.0.3"
+  }
+}

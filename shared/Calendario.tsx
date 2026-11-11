@@ -6,6 +6,7 @@ import { mesExtenso, mudarMes } from './formato';
 import { campanhaDoMes, Laco } from './campanhas';
 import { TextoAviso } from './TextoAviso';
 import type { DataDoMes, Evento } from './tipos';
+import { salvarArquivo } from './arquivo';
 
 const SEMANA = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 const hojeLocal = () => new Date().toLocaleDateString('sv-SE');
@@ -36,10 +37,7 @@ export function baixarIcs(e: Evento) {
     'END:VEVENT',
     'END:VCALENDAR',
   ];
-  const url = URL.createObjectURL(new Blob([linhas.join('\r\n')], { type: 'text/calendar;charset=utf-8' }));
-  const a = Object.assign(document.createElement('a'), { href: url, download: `uppa-${e.data}.ics` });
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  return salvarArquivo(new Blob([linhas.join('\r\n')], { type: 'text/calendar;charset=utf-8' }), `uppa-${e.data}.ics`);
 }
 
 export function Calendario({

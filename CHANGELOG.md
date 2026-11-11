@@ -2,6 +2,11 @@
 
 <!-- Itens com [Financeiro] ou [Associados] aparecem só naquele app; sem marca, nos dois. -->
 
+## 1.16.0 — 09/11/2026
+- [Associados] Em Meus dados, "Excluir minha conta": o próprio sócio apaga a conta e os dados dele, confirmando com a senha.
+- Política de privacidade explicando o que a UPPA guarda e com quem compartilha, com link em "Sobre o app" e na ficha de inscrição.
+- Apps prontos para o iPhone: no app instalado, exportar planilha, baixar cópia, levar evento para a agenda e salvar desenho abrem a opção de compartilhar do celular.
+
 ## 1.15.3 — 06/11/2026
 - [Financeiro] O crachá mostra só o primeiro e o último nome da pessoa (ex.: "Sharinne Avero"), também na conferência pelo QR Code.
 
