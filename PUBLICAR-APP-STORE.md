@@ -7,7 +7,7 @@ Este guia leva os dois apps à App Store, sem precisar de um Mac:
 
 A compilação é feita na nuvem, pelo **Codemagic**, a partir do código no **GitHub**. Você faz uma única vez os passos 1 a 6. Depois disso, cada versão nova é o passo 7 e o 11.
 
-> **O servidor precisa estar ligado.** O app do iPhone fala com `https://uppa.puxaiapp.com.br`. Se o computador do servidor estiver desligado quando a Apple for testar, o app é recusado. Durante a revisão, que costuma levar de 1 a 3 dias, deixe o servidor no ar o tempo todo. Para mudar o endereço, edite `VITE_API_URL` e `VITE_PUBLIC_URL` no `codemagic.yaml`.
+> **O servidor precisa estar ligado.** O app do iPhone fala com `https://uppa.concordy.dev.br`. Se o computador do servidor estiver desligado quando a Apple for testar, o app é recusado. Durante a revisão, que costuma levar de 1 a 3 dias, deixe o servidor no ar o tempo todo. Para mudar o endereço, edite `VITE_API_URL` e `VITE_PUBLIC_URL` no `codemagic.yaml`.
 
 ---
 
@@ -16,7 +16,7 @@ A compilação é feita na nuvem, pelo **Codemagic**, a partir do código no **G
 - `codemagic.yaml`: compila cada app e envia ao App Store Connect.
 - `scripts/preparar-ios.mjs`: cria o projeto do iPhone com o ícone, a tela de abertura, as permissões de câmera e fotos em português, a versão do `package.json` e suporte só a iPhone. Com iPad, a Apple exigiria fotos de tela de iPad também.
 - **Excluir minha conta** em *Meus dados*. A Apple exige essa opção em apps que deixam a pessoa criar uma conta.
-- **Política de privacidade** em `https://uppa.puxaiapp.com.br/privacidade` e **ajuda** em `https://uppa.puxaiapp.com.br/suporte`. Os dois endereços são obrigatórios na ficha da loja.
+- **Política de privacidade** em `https://uppa.concordy.dev.br/privacidade` e **ajuda** em `https://uppa.concordy.dev.br/suporte`. Os dois endereços são obrigatórios na ficha da loja.
 - Os downloads (planilha CSV, cópia do banco, evento da agenda, desenho) abrem a folha de compartilhar do iPhone.
 
 ---
@@ -137,7 +137,7 @@ App Store Connect → UPPA Associados → versão **1.0 Prepare for Submission**
   Ainda não é sócio? Faça a sua inscrição pelo próprio app.
   ```
 
-- **Support URL:** `https://uppa.puxaiapp.com.br/suporte`
+- **Support URL:** `https://uppa.concordy.dev.br/suporte`
 - **Marketing URL:** deixe em branco ou use o Instagram da UPPA.
 - **Copyright:** `2026 UPPA Roraima`
 
@@ -149,7 +149,7 @@ App Store Connect → UPPA Associados → versão **1.0 Prepare for Submission**
 
 **App Privacy** (Privacidade do app):
 
-- **Privacy Policy URL:** `https://uppa.puxaiapp.com.br/privacidade`
+- **Privacy Policy URL:** `https://uppa.concordy.dev.br/privacidade`
 - **Data collection:** *Yes*. Marque os tipos abaixo. Para todos: **Linked to the user** = sim, **Tracking** = não, finalidade **App Functionality**.
   - Contact Info: *Name*, *Email Address*, *Phone Number*, *Physical Address*
   - Health & Fitness: *Health* (laudos)
@@ -178,7 +178,7 @@ App Store Connect → UPPA Associados → versão **1.0 Prepare for Submission**
   bank transfer) or by card on Mercado Pago's website, opened in Safari (guideline 3.1.3(e)).
 
   Account deletion: bottom tab "Meus dados" > scroll to the end > "Excluir minha conta".
-  Privacy policy: https://uppa.puxaiapp.com.br/privacidade
+  Privacy policy: https://uppa.concordy.dev.br/privacidade
   ```
 
 **Build:** clique em **+** e escolha o build enviado pelo Codemagic. **Version Release:** *Manually release*, para você escolher o dia em que o app aparece na loja.

@@ -1,11 +1,11 @@
 ﻿UPPA — SERVIDOR LOCAL (Servidor 2 / PC MARCOS)
 ==============================================
 
-No ar pela internet em https://uppa.puxaiapp.com.br (túnel Cloudflare próprio) e também na rede local.
+No ar pela internet em https://uppa.concordy.dev.br (túnel Cloudflare próprio) e também na rede local.
 Não depende do Servidor 1 nem dos serviços/túneis S2.
 
 ENDEREÇOS
-  Internet ............ https://uppa.puxaiapp.com.br/financeiro/   e   https://uppa.puxaiapp.com.br/associados/
+  Internet ............ https://uppa.concordy.dev.br/financeiro/   e   https://uppa.concordy.dev.br/associados/
   Neste PC ............ http://localhost:8860/financeiro/   e   http://localhost:8860/associados/
   Outros aparelhos no
   mesmo Wi-Fi/rede .... http://192.168.100.2:8860/financeiro/   e   http://192.168.100.2:8860/associados/
@@ -27,7 +27,7 @@ ATUALIZAR DEPOIS DE MUDAR O CÓDIGO
 
 TÚNEL (internet)
   Serviço  : UPPA-Tunel (cloudflared), liga sozinho depois do UPPA-Servidor
-  Túnel    : "uppa" (id ea44cb89-6eae-4143-accf-d7023e0066b2), conta Cloudflare do puxaiapp.com.br
+  Túnel    : "uppa" (id ddaa6f35-fa43-4d1f-8047-9f5625913d46), conta Cloudflare do Marcos (concordy.dev.br); o antigo ea44cb89 (puxaiapp.com.br) segue até ser desligado
   Config   : C:\UPPA\tunel\config.yml  (credencial do túnel ao lado: não compartilhe)
   O primeiro administrador do Financeiro só pode ser criado de um aparelho da rede local.
 

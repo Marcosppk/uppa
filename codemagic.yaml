@@ -15,8 +15,8 @@ definitions:
     node: 22
     vars:
       # Endereço do servidor da UPPA na internet: os apps instalados falam com ele.
-      VITE_API_URL: https://uppa.puxaiapp.com.br
-      VITE_PUBLIC_URL: https://uppa.puxaiapp.com.br/associados
+      VITE_API_URL: https://uppa.concordy.dev.br
+      VITE_PUBLIC_URL: https://uppa.concordy.dev.br/associados
   publicar: &publicar
     app_store_connect:
       auth: integration
